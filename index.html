@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson 7-1 副詞・副詞句 例文解説</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+        }
+        .control-button:hover {
+            transform: scale(1.1);
+            transition: transform 0.2s;
+        }
+        .highlight {
+            color: #E53E3E; /* red-600 */
+            text-decoration: underline;
+            font-weight: bold;
+        }
+        .highlight-exp {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        .explanation-panel, .recognition-panel {
+            transition: all 0.3s ease-in-out;
+        }
+        .recording {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Lesson 7-1 副詞・副詞句</h1>
+            <p class="text-gray-600 mt-2">例文 138～152 解説・音声・発音練習</p>
+        </header>
+
+        <main class="space-y-6" id="main-content">
+            <!-- A 副詞・副詞句 -->
+            <section>
+                <h2 class="text-2xl font-bold text-gray-700 border-l-4 border-blue-500 pl-4 mb-4">A. 副詞・副詞句</h2>
+                <div id="sentences-a" class="space-y-4"></div>
+            </section>
+
+            <!-- B 不定詞や分詞を使った副詞句 -->
+            <section>
+                <h2 class="text-2xl font-bold text-gray-700 border-l-4 border-green-500 pl-4 mb-4">B. 不定詞や分詞を使った副詞句</h2>
+                <div id="sentences-b" class="space-y-4"></div>
+            </section>
+
+            <!-- Expressions -->
+            <section>
+                <h2 class="text-2xl font-bold text-gray-700 border-l-4 border-purple-500 pl-4 mb-4">Expressions</h2>
+                <div id="sentences-expressions" class="space-y-4"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const sentences = [
+            // A. 副詞・副詞句
+            { id: 138, category: 'a', en: "English is <span class='highlight'>widely</span> used as an international language.", jp: "英語は国際語として広く使われている。", explanation: "`widely` は動詞 `used` を修飾する<span class='highlight-exp'>副詞</span>です。「広く」という意味を表します。" },
+            { id: 139, category: 'a', en: "<span class='highlight'>Unfortunately</span>, some climbers don't take their trash home.", jp: "残念ながら、登山者の中にはごみを持ち帰らない人もいる。", explanation: "`Unfortunately` は文全体を修飾する<span class='highlight-exp'>副詞</span>です。「残念なことに」と話し手の気持ちを表します。" },
+            { id: 140, category: 'a', en: "I will be back <span class='highlight'>in an hour</span>.", jp: "1時間後に戻ります。", explanation: "`in an hour` は「<span class='highlight-exp'>今から1時間後に</span>」という未来の時点を表す副詞句です。" },
+            { id: 141, category: 'a', en: "I went skiing <span class='highlight'>for the first time in three years</span>.", jp: "3年ぶりにスキーに出かけた。", explanation: "`for the first time in X` は「<span class='highlight-exp'>X年ぶりに</span>」という期間を表す重要な副詞句です。" },
+            { id: 142, category: 'a', en: "What will you buy <span class='highlight'>with the money</span>?", jp: "そのお金で何を買うつもりですか。", explanation: "`with` は「<span class='highlight-exp'>～を使って</span>」という道具や手段を表す前置詞で、ここでは副詞句を作っています。" },
+            { id: 143, category: 'a', en: "Lisa was waiting for me <span class='highlight'>with her arms crossed</span>.", jp: "リサは腕組みをして私を待っていた。", explanation: "`with + O + 過去分詞` の形で「<span class='highlight-exp'>Oが～された状態で</span>」という付帯状況を表します。頻出の構文です。" },
+            
+            // B. 不定詞や分詞を使った副詞句
+            { id: 144, category: 'b', en: "I have started jogging <span class='highlight'>to lose weight and keep fit</span>.", jp: "体重を落として健康を保つためにジョギングを始めた。", explanation: "不定詞の副詞的用法で、「<span class='highlight-exp'>～するために</span>」という目的を表します。" },
+            { id: 145, category: 'b', en: "I was <span class='highlight'>surprised to learn</span> that there are many sushi restaurants overseas.", jp: "すし店が海外にたくさんあると知って驚いた。", explanation: "不定詞の副詞的用法で、`surprised` という<span class='highlight-exp'>感情の原因</span>を表します。「～して驚いた」という意味です。" },
+            { id: 146, category: 'b', en: "He <span class='highlight'>grew up to be</span> a famous artist.", jp: "彼は成長して有名な画家になった。", explanation: "不定詞の副詞的用法で、「<span class='highlight-exp'>～して…になった</span>」という結果を表します。" },
+            { id: 147, category: 'b', en: "I sat around all day yesterday, <span class='highlight'>doing nothing in particular</span>.", jp: "昨日は一日中、特に何もせずだらだらしていた。", explanation: "分詞構文で、「<span class='highlight-exp'>～しながら</span>」という付帯状況を表します。" },
+            { id: 148, category: 'b', en: "<span class='highlight'>Filled with colorful roses</span>, my grandfather's garden pleases the neighbors.", jp: "色鮮やかなバラでいっぱいなので、祖父の庭は隣人たちを喜ばせている。", explanation: "分詞構文で、「<span class='highlight-exp'>～なので</span>」という理由を表しています。" },
+
+            // Expressions
+            { id: 149, category: 'expressions', en: "The project has come to a stop <span class='highlight'>because of</span> lack of funding.", jp: "その計画は資金不足のため中止になった。", explanation: "`because of` は「<span class='highlight-exp'>～が原因で</span>」という意味を表す句です。後には名詞（句）が続きます。" },
+            { id: 150, category: 'expressions', en: "<span class='highlight'>Thanks to</span> the treatment, the baby was completely cured.", jp: "その治療のおかげで、赤ちゃんは全快した。", explanation: "`Thanks to` は「<span class='highlight-exp'>～のおかげで</span>」と肯定的な理由や原因を表す表現です。" },
+            { id: 151, category: 'expressions', en: "He is wearing a face mask <span class='highlight'>in order to</span> prevent infection.", jp: "彼は感染を防ぐためにマスクを着用している。", explanation: "`in order to` は `to` 不定詞の目的「<span class='highlight-exp'>～するために</span>」をより明確にする表現です。" },
+            { id: 152, category: 'expressions', en: "Everyone should be given an equal chance, <span class='highlight'>regardless of</span> age, race or gender.", jp: "年齢、人種、性別にかかわらず、すべての人に等しく機会が与えられるべきだ。", explanation: "`regardless of` は「<span class='highlight-exp'>～にかかわらず</span>」という意味の重要な前置詞句です。" }
+        ];
+        
+        // Speech Recognition setup
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+        } else {
+            console.log("Speech Recognition Not Supported");
+        }
+
+        function calculateSimilarity(s1, s2) {
+            let longer = s1;
+            let shorter = s2;
+            if (s1.length < s2.length) {
+                longer = s2;
+                shorter = s1;
+            }
+            let longerLength = longer.length;
+            if (longerLength === 0) {
+                return 1.0;
+            }
+            return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+        }
+
+        function editDistance(s1, s2) {
+            s1 = s1.toLowerCase();
+            s2 = s2.toLowerCase();
+
+            const costs = new Array();
+            for (let i = 0; i <= s1.length; i++) {
+                let lastValue = i;
+                for (let j = 0; j <= s2.length; j++) {
+                    if (i == 0) {
+                        costs[j] = j;
+                    } else {
+                        if (j > 0) {
+                            let newValue = costs[j - 1];
+                            if (s1.charAt(i - 1) != s2.charAt(j - 1))
+                                newValue = Math.min(Math.min(newValue, lastValue),
+                                    costs[j]) + 1;
+                            costs[j - 1] = lastValue;
+                            lastValue = newValue;
+                        }
+                    }
+                }
+                if (i > 0)
+                    costs[s2.length] = lastValue;
+            }
+            return costs[s2.length];
+        }
+
+
+        function handleRecording(sentence, recordButton, resultPanel) {
+            if (!recognition) {
+                resultPanel.innerHTML = `<p class="text-red-500">お使いのブラウザは音声認識に対応していません。</p>`;
+                return;
+            }
+
+            if (recordButton.classList.contains('recording')) {
+                recognition.stop();
+                return;
+            }
+            
+            recognition.start();
+
+            recognition.onstart = () => {
+                recordButton.classList.add('recording');
+                recordButton.classList.remove('bg-green-500');
+                recordButton.classList.add('bg-red-500');
+                recordButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10h.01M15 10h.01M9 14h6" /></svg>`; // Stop icon
+                resultPanel.innerHTML = `<p class="text-gray-500">録音中...</p>`;
+            };
+
+            recognition.onend = () => {
+                recordButton.classList.remove('recording');
+                recordButton.classList.remove('bg-red-500');
+                recordButton.classList.add('bg-green-500');
+                recordButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v3a3 3 0 01-3 3z" /></svg>`; // Mic icon
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                const cleanOriginal = sentence.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").toLowerCase();
+                const cleanTranscript = transcript.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").toLowerCase();
+                
+                const similarity = calculateSimilarity(cleanOriginal, cleanTranscript);
+                const score = Math.round(similarity * 100);
+
+                let feedback = '';
+                let colorClass = '';
+                if (score >= 85) {
+                    feedback = '素晴らしい！';
+                    colorClass = 'text-green-600';
+                } else if (score >= 65) {
+                    feedback = '惜しい！';
+                    colorClass = 'text-yellow-600';
+                } else {
+                    feedback = 'もう一度！';
+                    colorClass = 'text-red-600';
+                }
+
+                resultPanel.innerHTML = `
+                    <p class="text-gray-800">あなたの発音: 「${transcript}」</p>
+                    <div class="flex items-center mt-2">
+                        <p class="font-bold ${colorClass}">${feedback}</p>
+                        <p class="ml-4 text-sm text-gray-600">スコア: ${score}点</p>
+                    </div>
+                `;
+            };
+
+            recognition.onerror = (event) => {
+                 resultPanel.innerHTML = `<p class="text-red-500">エラーが発生しました: ${event.error}</p>`;
+            };
+        }
+
+
+        function createSentenceCard(sentence) {
+            const card = document.createElement('div');
+            card.className = 'bg-white p-4 rounded-lg shadow-md';
+            
+            const contentAndControls = document.createElement('div');
+            contentAndControls.className = 'flex items-start space-x-4';
+
+            const numberDiv = document.createElement('div');
+            numberDiv.className = 'flex-shrink-0 bg-gray-200 text-gray-700 font-bold rounded-full h-8 w-8 flex items-center justify-center text-sm';
+            numberDiv.textContent = String(sentence.id);
+
+            const textContentDiv = document.createElement('div');
+            textContentDiv.className = 'flex-grow';
+
+            const enP = document.createElement('p');
+            enP.className = 'text-lg text-gray-800 font-medium';
+            enP.innerHTML = sentence.en;
+
+            const jpP = document.createElement('p');
+            jpP.className = 'text-gray-600 mt-1';
+            jpP.textContent = sentence.jp;
+            
+            textContentDiv.appendChild(enP);
+            textContentDiv.appendChild(jpP);
+
+            const controlsDiv = document.createElement('div');
+            controlsDiv.className = 'flex items-center space-x-2 ml-2';
+
+            const audioButton = document.createElement('button');
+            audioButton.className = 'control-button p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 focus:outline-none';
+            audioButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /></svg>`;
+            audioButton.onclick = () => {
+                if (speechSynthesis.speaking) speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(sentence.en.replace(/<[^>]*>?/gm, ''));
+                utterance.lang = 'en-US';
+                speechSynthesis.speak(utterance);
+            };
+
+            const recordButton = document.createElement('button');
+            recordButton.className = 'control-button p-2 rounded-full bg-green-500 text-white hover:bg-green-600 focus:outline-none';
+            recordButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v3a3 3 0 01-3 3z" /></svg>`;
+
+            const toggleButton = document.createElement('button');
+            toggleButton.className = 'control-button text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300';
+            toggleButton.textContent = '解説';
+            
+            controlsDiv.appendChild(audioButton);
+            controlsDiv.appendChild(recordButton);
+            controlsDiv.appendChild(toggleButton);
+            
+            contentAndControls.appendChild(numberDiv);
+            contentAndControls.appendChild(textContentDiv);
+            contentAndControls.appendChild(controlsDiv);
+
+            const explanationPanel = document.createElement('div');
+            explanationPanel.className = 'explanation-panel hidden mt-3 pt-3 border-t border-gray-200';
+            explanationPanel.innerHTML = `<p class="text-gray-700 bg-gray-50 p-3 rounded-md">${sentence.explanation}</p>`;
+            
+            toggleButton.onclick = () => {
+                explanationPanel.classList.toggle('hidden');
+            };
+
+            const recognitionPanel = document.createElement('div');
+            recognitionPanel.className = 'recognition-panel mt-3 pt-3 border-t border-gray-200';
+
+            recordButton.onclick = () => handleRecording(sentence.en.replace(/<[^>]*>?/gm, ''), recordButton, recognitionPanel);
+
+
+            card.appendChild(contentAndControls);
+            card.appendChild(explanationPanel);
+            card.appendChild(recognitionPanel);
+
+            return card;
+        }
+
+        function renderSentences() {
+            if (!SpeechRecognition) {
+                const mainContent = document.getElementById('main-content');
+                const warning = document.createElement('div');
+                warning.className = 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md';
+                warning.innerHTML = '<p class="font-bold">音声認識機能が利用できません</p><p>お使いのブラウザは音声認識に対応していないか、マイクへのアクセスが許可されていません。発音練習機能を利用するには、Google Chromeなどの対応ブラウザをご利用ください。</p>';
+                mainContent.prepend(warning);
+            }
+
+            const containerA = document.getElementById('sentences-a');
+            const containerB = document.getElementById('sentences-b');
+            const containerExpressions = document.getElementById('sentences-expressions');
+
+            sentences.forEach(sentence => {
+                const card = createSentenceCard(sentence);
+                if (sentence.category === 'a') {
+                    containerA.appendChild(card);
+                } else if (sentence.category === 'b') {
+                    containerB.appendChild(card);
+                } else if (sentence.category === 'expressions') {
+                    containerExpressions.appendChild(card);
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', renderSentences);
+    </script>
+</body>
+</html>
