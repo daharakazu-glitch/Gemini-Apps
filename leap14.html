@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第14回 LEAP小テスト 音声復習</title>
+<style>
+  :root {
+    --bg: #f3f5f9;
+    --card: #ffffff;
+    --text: #1f2937;
+    --sub: #6b7280;
+    --line: #e5e7eb;
+    --primary: #2563eb;
+    --primary-soft: #dbeafe;
+    --ok: #16a34a;
+    --ok-soft: #dcfce7;
+    --ng: #dc2626;
+    --ng-soft: #fee2e2;
+    --warn: #d97706;
+    --warn-soft: #fef3c7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #e5e7eb; --sub: #94a3b8; --line: #334155;
+      --primary: #60a5fa; --primary-soft: #1e3a5f; --ok: #4ade80; --ok-soft: #14532d;
+      --ng: #f87171; --ng-soft: #4c1d1d; --warn: #fbbf24; --warn-soft: #4a3510;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "YuGothic", sans-serif;
+    line-height: 1.6; -webkit-tap-highlight-color: transparent;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 16px 16px 96px; }
+  header h1 { font-size: 1.25rem; margin: 8px 0 2px; }
+  header p { margin: 0; color: var(--sub); font-size: .85rem; }
+  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 16px 0; }
+  .tab {
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+    border-radius: 10px; padding: 10px 4px; font-size: .8rem; font-weight: 700; cursor: pointer;
+  }
+  .tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+  .help { font-size: .82rem; color: var(--sub); background: var(--primary-soft); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+  .help b { color: var(--text); }
+  .notice { font-size: .8rem; background: var(--warn-soft); color: var(--text); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; display: none; }
+  .settings { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: .85rem; }
+  .settings label { display: flex; align-items: center; gap: 6px; }
+  input[type=range] { width: 120px; }
+  .qno { font-size: .75rem; color: var(--sub); font-weight: 700; }
+  .ja { font-size: 1rem; font-weight: 700; margin: 4px 0; }
+  .en { font-size: 1.1rem; margin: 4px 0 12px; font-family: "Inter", "Segoe UI", Arial, sans-serif; }
+  .blank { display: inline-block; min-width: 72px; border-bottom: 2px solid var(--primary); text-align: center; color: var(--primary); font-weight: 700; }
+  .ans { color: var(--ng); font-weight: 700; text-decoration: underline; }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .choice {
+    padding: 14px 8px; font-size: 1rem; border-radius: 10px; border: 2px solid var(--line);
+    background: var(--card); color: var(--text); cursor: pointer; font-family: inherit;
+  }
+  .choice.correct { border-color: var(--ok); background: var(--ok-soft); }
+  .choice.wrong { border-color: var(--ng); background: var(--ng-soft); }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .spell { display: flex; gap: 8px; }
+  .spell input {
+    flex: 1; min-width: 0; font-size: 1.1rem; padding: 12px; border-radius: 10px;
+    border: 2px solid var(--line); background: var(--card); color: var(--text);
+  }
+  .btn {
+    border: none; border-radius: 10px; padding: 12px 14px; font-size: .9rem; font-weight: 700;
+    cursor: pointer; background: var(--primary); color: #fff; font-family: inherit;
+  }
+  .btn.sub { background: var(--primary-soft); color: var(--primary); }
+  .btn.ghost { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+  .btn:disabled { opacity: .4; cursor: default; }
+  .btn.rec { background: var(--ng); }
+  .recording { animation: pulse 1.4s infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220,38,38,.6); } 70% { box-shadow: 0 0 0 10px rgba(220,38,38,0); } 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); } }
+  .feedback { margin-top: 12px; padding: 12px; border-radius: 10px; font-size: .9rem; display: none; }
+  .feedback.ok { background: var(--ok-soft); display: block; }
+  .feedback.ng { background: var(--ng-soft); display: block; }
+  .meaning { font-size: .85rem; color: var(--sub); }
+  .progress { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; margin-bottom: 12px; }
+  .progress > div { height: 100%; background: var(--primary); width: 0; transition: width .3s; }
+  .nav { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; }
+  .score { font-size: 2.4rem; font-weight: 800; text-align: center; margin: 8px 0; }
+  .result-list { list-style: none; padding: 0; margin: 0; }
+  .result-list li { border-bottom: 1px solid var(--line); padding: 8px 0; font-size: .9rem; }
+  .mark { font-weight: 800; margin-right: 6px; }
+  .mark.o { color: var(--ok); } .mark.x { color: var(--ng); }
+  .speech-out { margin-top: 10px; font-size: .95rem; }
+  .w-ok { color: var(--ok); font-weight: 700; }
+  .w-ng { color: var(--ng); text-decoration: line-through; }
+  .pscore { font-weight: 800; font-size: 1.2rem; }
+  .now-playing { outline: 3px solid var(--primary); }
+  .filter { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--line); background: var(--card); color: var(--text); border-radius: 99px; padding: 6px 12px; font-size: .8rem; cursor: pointer; }
+  .chip.active { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: 700; }
+  .hidden { display: none !important; }
+  footer { text-align: center; color: var(--sub); font-size: .75rem; margin-top: 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>第14回 LEAP小テスト 音声復習</h1>
+    <p>Part 2 Week 13-14（924-1000）／ 全20問</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-view="test">テスト</button>
+    <button class="tab" data-view="list">一覧・発音</button>
+    <button class="tab" data-view="listen">聞き流し</button>
+    <button class="tab" data-view="miss">苦手</button>
+  </nav>
+
+  <div class="notice" id="iosNotice">
+    お使いのブラウザでは音声認識（発音チェック）が使えない可能性があります。その場合も音声の再生はできます。発音チェックは Android の Chrome やパソコンの Chrome がおすすめです。
+  </div>
+
+  <div class="card settings">
+    <label>読み上げ速度 <input type="range" id="rate" min="0.5" max="1.3" step="0.1" value="0.9"> <span id="rateVal">0.9</span>倍</label>
+    <label><input type="checkbox" id="autoPlay" checked> 解答後に英語を自動再生</label>
+  </div>
+
+  <!-- テストモード -->
+  <section id="view-test">
+    <div class="help">
+      本番と同じ20問に挑戦します。<b>1〜10</b>は4択、<b>11〜20</b>は頭文字をヒントに単語を入力します。答えると正解と英語の音声が流れます。
+    </div>
+    <div class="filter">
+      <button class="chip active" data-order="normal">問題順</button>
+      <button class="chip" data-order="shuffle">シャッフル</button>
+      <button class="chip" data-order="miss">苦手だけ</button>
+    </div>
+    <div class="progress"><div id="bar"></div></div>
+    <div id="quizArea"></div>
+  </section>
+
+  <!-- 一覧・発音モード -->
+  <section id="view-list" class="hidden">
+    <div class="help">
+      正解を入れた英語フレーズの一覧です。<b>▶</b>で再生、<b>🎤</b>を押してフレーズを読むと発音をチェックして点数を出します。緑は言えた語、赤線は聞き取れなかった語です。
+    </div>
+    <div id="listArea"></div>
+  </section>
+
+  <!-- 聞き流しモード -->
+  <section id="view-listen" class="hidden">
+    <div class="help">
+      「英語 → 日本語 → 英語」の順に全問を連続で読み上げます。通学中や寝る前の復習にどうぞ。
+    </div>
+    <div class="card">
+      <div class="row">
+        <button class="btn" id="listenStart">▶ 連続再生スタート</button>
+        <button class="btn sub" id="listenStop" disabled>■ 停止</button>
+      </div>
+      <label class="settings" style="margin-top:10px"><input type="checkbox" id="listenJa" checked> 日本語も読み上げる</label>
+    </div>
+    <div id="listenArea"></div>
+  </section>
+
+  <!-- 苦手モード -->
+  <section id="view-miss" class="hidden">
+    <div class="help">
+      テストで間違えた問題がここにたまります（この端末に保存）。正解したら自動で消えます。
+    </div>
+    <div id="missArea"></div>
+  </section>
+
+  <footer>音声は端末の読み上げ機能（Web Speech API）を使用しています。</footer>
+</div>
+
+<script>
+// ===== 問題データ（第14回 LEAP小テスト Part 2 Week 13-14 924-1000） =====
+const QUESTIONS = [
+  {"no": 1, "type": "choice", "ja": "彼はスペイン語が流暢だ。", "en": "He speaks ___ Spanish.", "answer": "fluent", "choices": ["terrible", "distant", "fluent", "tender"], "meaning": "fluent：流暢な"},
+  {"no": 2, "type": "choice", "ja": "肥満はBMI30以上と定義されている。", "en": "Obesity is ___ as a BMI of 30 or above.", "answer": "defined", "choices": ["interpreted", "defined", "translated", "transferred"], "meaning": "define A as B：AをBと定義する"},
+  {"no": 3, "type": "choice", "ja": "彼女に秘密を漏らす", "en": "___ a secret to her", "answer": "reveal", "choices": ["reveal", "indicate", "announce", "quote"], "meaning": "reveal：〜を明らかにする、漏らす"},
+  {"no": 4, "type": "choice", "ja": "コンサートを宣伝する", "en": "___ the concert", "answer": "advertise", "choices": ["prove", "advertise", "translate", "define"], "meaning": "advertise：〜を宣伝する"},
+  {"no": 5, "type": "choice", "ja": "人気スターの結婚はマスコミの関心を引きつけた。", "en": "The pop star's marriage ___ media attention.", "answer": "attracted", "choices": ["proved", "entertained", "attracted", "amused"], "meaning": "attract：〜を引きつける"},
+  {"no": 6, "type": "choice", "ja": "私は本に夢中になっていた。", "en": "I was ___ in a book.", "answer": "absorbed", "choices": ["proved", "amused", "absorbed", "attracted"], "meaning": "be absorbed in：〜に夢中になっている"},
+  {"no": 7, "type": "choice", "ja": "何度も転職を繰り返したあと、最終的に、銀行に就職しました。", "en": "After changing jobs many times, I ___ found a job in a bank.", "answer": "eventually", "choices": ["possibly", "largely", "eventually", "frankly"], "meaning": "eventually：最終的に、結局"},
+  {"no": 8, "type": "choice", "ja": "友だちと率直に話し合う", "en": "talk ___ with a friend", "answer": "frankly", "choices": ["ironically", "somewhat", "frankly", "largely"], "meaning": "frankly：率直に"},
+  {"no": 9, "type": "choice", "ja": "喫煙は体に悪い。その上お金がかかる。", "en": "Smoking is bad for you. ___, it costs a lot.", "answer": "Moreover", "choices": ["Otherwise", "Seriously", "Moreover", "Largely"], "meaning": "moreover：その上、さらに"},
+  {"no": 10, "type": "choice", "ja": "性別、民族、国籍とは無関係に", "en": "___ of gender, race, or nationality", "answer": "regardless", "choices": ["moreover", "otherwise", "frankly", "regardless"], "meaning": "regardless of：〜とは無関係に"},
+  {"no": 11, "type": "spell", "ja": "研究はその薬が子どもに害があるかもしれないことを示している。", "en": "Research ___ that the medicine can be harmful to children.", "answer": "indicates", "hint": "i", "meaning": "indicate：〜を示す（主語が3人称単数なので indicates）", "accept": ["indicated"]},
+  {"no": 12, "type": "spell", "ja": "選挙の結果を発表する", "en": "___ the results of the election", "answer": "announce", "hint": "a", "meaning": "announce：〜を発表する"},
+  {"no": 13, "type": "spell", "ja": "それが偽物だと証明する", "en": "___ it is false", "answer": "prove", "hint": "p", "meaning": "prove：〜を証明する"},
+  {"no": 14, "type": "spell", "ja": "その知らせは彼女を動揺させた。", "en": "The news ___ her.", "answer": "upset", "hint": "u", "meaning": "upset：〜を動揺させる（過去形も upset）"},
+  {"no": 15, "type": "spell", "ja": "自信を高める", "en": "boost my ___", "answer": "confidence", "hint": "c", "meaning": "confidence：自信、信頼"},
+  {"no": 16, "type": "spell", "ja": "断る勇気を持つ", "en": "have the ___ to say no", "answer": "courage", "hint": "c", "meaning": "courage：勇気"},
+  {"no": 17, "type": "spell", "ja": "彼に2,000円を借りている。", "en": "I ___ him 2,000 yen.", "answer": "owe", "hint": "o", "meaning": "owe A B：AにBを借りている"},
+  {"no": 18, "type": "spell", "ja": "意思疎通の手段", "en": "a ___ of communication", "answer": "means", "hint": "m", "meaning": "means：手段（単複同形）"},
+  {"no": 19, "type": "spell", "ja": "この指輪は200万ドル以上の価値がある。", "en": "This ring is ___ over two million dollars.", "answer": "worth", "hint": "w", "meaning": "be worth：〜の価値がある"},
+  {"no": 20, "type": "spell", "ja": "大雨にもかかわらず、そのサッカーの試合は行われた。", "en": "The soccer match was held, ___ the heavy rain.", "answer": "despite", "hint": "d", "meaning": "despite：〜にもかかわらず"}
+];
+
+const fullSentence = q => q.en.replace("___", q.answer);
+const escapeHtml = s => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const withAnswerHtml = q => escapeHtml(q.en).replace("___", `<span class="ans">${q.answer}</span>`);
+const withBlankHtml = q => escapeHtml(q.en).replace("___", `<span class="blank">${q.type === "spell" ? "(" + q.hint + "&nbsp;&nbsp;&nbsp;)" : "(&nbsp;&nbsp;&nbsp;)"}</span>`);
+
+// ===== 苦手リスト（localStorage、使えない環境ではメモリのみ） =====
+const MISS_KEY = "leap14-miss";
+let missSet = new Set();
+try { missSet = new Set(JSON.parse(localStorage.getItem(MISS_KEY) || "[]")); } catch (e) {}
+function saveMiss() { try { localStorage.setItem(MISS_KEY, JSON.stringify([...missSet])); } catch (e) {} }
+
+// ===== 音声合成 =====
+const synth = window.speechSynthesis;
+let voices = [];
+function loadVoices() { voices = synth ? synth.getVoices() : []; }
+if (synth) { loadVoices(); synth.onvoiceschanged = loadVoices; }
+function pickVoice(lang) {
+  const list = voices.filter(v => v.lang && v.lang.replace("_", "-").startsWith(lang));
+  if (lang === "en") return list.find(v => /en-US/.test(v.lang) && /Google|Samantha|Aria|Jenny/i.test(v.name)) || list.find(v => /en-US/.test(v.lang)) || list[0];
+  return list[0];
+}
+const rateInput = document.getElementById("rate");
+rateInput.addEventListener("input", () => document.getElementById("rateVal").textContent = rateInput.value);
+
+function speak(text, lang = "en") {
+  return new Promise(resolve => {
+    if (!synth) return resolve();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === "en" ? "en-US" : "ja-JP";
+    const v = pickVoice(lang);
+    if (v) u.voice = v;
+    u.rate = lang === "en" ? parseFloat(rateInput.value) : 1.0;
+    u.onend = resolve; u.onerror = resolve;
+    synth.speak(u);
+  });
+}
+function speakNow(text, lang = "en") { if (synth) synth.cancel(); listenRunning = false; return speak(text, lang); }
+
+// ===== 音声認識 =====
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+if (!SR || isIOS) document.getElementById("iosNotice").style.display = "block";
+
+const norm = s => s.toLowerCase().replace(/[’']/g, "'").replace(/[^a-z0-9' ]/g, " ").split(/\s+/).filter(Boolean);
+function scoreSpeech(target, heard) {
+  const t = norm(target), h = norm(heard);
+  const pool = [...h];
+  const marks = t.map(w => { const i = pool.indexOf(w); if (i >= 0) { pool.splice(i, 1); return true; } return false; });
+  const score = Math.round(marks.filter(Boolean).length / t.length * 100);
+  const html = target.split(/\s+/).map((w, i) => `<span class="${marks[i] ? "w-ok" : "w-ng"}">${escapeHtml(w)}</span>`).join(" ");
+  return { score, html };
+}
+let activeRec = null;
+function startRecognition(target, btn, out) {
+  if (!SR) { out.innerHTML = "このブラウザは音声認識に対応していません。▶ で聞いてまねして読んでみましょう。"; return; }
+  if (activeRec) { activeRec.stop(); return; }
+  if (synth) synth.cancel();
+  const rec = new SR();
+  rec.lang = "en-US"; rec.interimResults = false; rec.maxAlternatives = 3;
+  activeRec = rec;
+  btn.classList.add("recording"); btn.textContent = "● 聞いています…";
+  out.innerHTML = "フレーズを読んでください。";
+  rec.onresult = e => {
+    const alts = [...e.results[0]].map(a => a.transcript);
+    const best = alts.map(a => ({ a, ...scoreSpeech(target, a) })).sort((x, y) => y.score - x.score)[0];
+    const color = best.score >= 80 ? "var(--ok)" : best.score >= 50 ? "var(--warn)" : "var(--ng)";
+    const msg = best.score >= 80 ? "よくできました！" : best.score >= 50 ? "おしい！赤い語に気をつけてもう一度。" : "▶ でお手本を聞いてからもう一度。";
+    out.innerHTML = `<span class="pscore" style="color:${color}">${best.score}点</span> ${msg}<br>${best.html}<br><span class="meaning">認識結果：${escapeHtml(best.a)}</span>`;
+  };
+  rec.onerror = e => { out.innerHTML = e.error === "not-allowed" ? "マイクの使用が許可されていません。ブラウザの設定を確認してください。" : "うまく聞き取れませんでした。もう一度試してください。"; };
+  rec.onend = () => { activeRec = null; btn.classList.remove("recording"); btn.textContent = "🎤 発音チェック"; };
+  try { rec.start(); } catch (e) { rec.onend(); }
+}
+
+// ===== タブ切り替え =====
+document.querySelectorAll(".tab").forEach(tab => tab.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t === tab));
+  document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
+  document.getElementById("view-" + tab.dataset.view).classList.remove("hidden");
+  stopListen();
+  if (tab.dataset.view === "list") renderList();
+  if (tab.dataset.view === "listen") renderListen();
+  if (tab.dataset.view === "miss") renderMiss();
+}));
+
+// ===== テストモード =====
+let order = "normal", quiz = [], idx = 0, results = [];
+const quizArea = document.getElementById("quizArea");
+const bar = document.getElementById("bar");
+const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+document.querySelectorAll(".chip[data-order]").forEach(chip => chip.addEventListener("click", () => {
+  document.querySelectorAll(".chip[data-order]").forEach(c => c.classList.toggle("active", c === chip));
+  order = chip.dataset.order;
+  startQuiz();
+}));
+
+function startQuiz() {
+  if (order === "shuffle") quiz = shuffle(QUESTIONS);
+  else if (order === "miss") quiz = QUESTIONS.filter(q => missSet.has(q.no));
+  else quiz = [...QUESTIONS];
+  idx = 0; results = [];
+  if (!quiz.length) {
+    bar.style.width = "0";
+    quizArea.innerHTML = `<div class="card">苦手な問題はありません。まずは「問題順」でテストに挑戦しましょう。</div>`;
+    return;
+  }
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = quiz[idx];
+  bar.style.width = (idx / quiz.length * 100) + "%";
+  const body = q.type === "choice"
+    ? `<div class="choices">${shuffle(q.choices).map(c => `<button class="choice" data-c="${c}">${c}</button>`).join("")}</div>`
+    : `<div class="spell"><input id="spellIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${q.hint}… で始まる語"><button class="btn" id="spellBtn">答える</button></div>`;
+  quizArea.innerHTML = `
+    <div class="card">
+      <div class="qno">第${q.no}問（${idx + 1} / ${quiz.length}）${q.type === "choice" ? "4択" : "書き取り"}</div>
+      <div class="ja">${escapeHtml(q.ja)}</div>
+      <div class="en">${withBlankHtml(q)}</div>
+      ${body}
+      <div class="feedback" id="fb"></div>
+      <div class="nav">
+        <button class="btn sub" id="hearQ">▶ 日本語を聞く</button>
+        <button class="btn hidden" id="nextBtn">${idx + 1 < quiz.length ? "次へ →" : "結果を見る"}</button>
+      </div>
+    </div>`;
+  document.getElementById("hearQ").onclick = () => speakNow(q.ja, "ja");
+  document.getElementById("nextBtn").onclick = () => { idx++; idx < quiz.length ? renderQuestion() : renderResult(); };
+  if (q.type === "choice") {
+    quizArea.querySelectorAll(".choice").forEach(b => b.onclick = () => judge(q, b.dataset.c, b));
+  } else {
+    const inp = document.getElementById("spellIn");
+    const submit = () => { if (inp.value.trim()) judge(q, inp.value.trim()); };
+    document.getElementById("spellBtn").onclick = submit;
+    inp.addEventListener("keydown", e => { if (e.key === "Enter") submit(); });
+    inp.focus();
+  }
+}
+
+function judge(q, given, btn) {
+  const g = given.toLowerCase();
+  const ok = g === q.answer.toLowerCase() || (q.accept || []).includes(g);
+  results.push({ q, given, ok });
+  if (ok) missSet.delete(q.no); else missSet.add(q.no);
+  saveMiss();
+  if (q.type === "choice") {
+    quizArea.querySelectorAll(".choice").forEach(b => {
+      b.disabled = true;
+      if (b.dataset.c === q.answer) b.classList.add("correct");
+      else if (b === btn) b.classList.add("wrong");
+    });
+  } else {
+    document.getElementById("spellIn").disabled = true;
+    document.getElementById("spellBtn").disabled = true;
+  }
+  const fb = document.getElementById("fb");
+  fb.className = "feedback " + (ok ? "ok" : "ng");
+  fb.innerHTML = `<b>${ok ? "⭕ 正解！" : "❌ 不正解… 正解は " + q.answer}</b><br>
+    <span style="font-size:1.05rem">${withAnswerHtml(q)}</span><br>
+    <span class="meaning">${escapeHtml(q.meaning)}</span>
+    <div class="row" style="margin-top:8px"><button class="btn sub" id="replay">▶ もう一度聞く</button><button class="btn ghost" id="replayWord">▶ 単語だけ</button></div>`;
+  document.getElementById("replay").onclick = () => speakNow(fullSentence(q));
+  document.getElementById("replayWord").onclick = () => speakNow(q.answer);
+  document.getElementById("nextBtn").classList.remove("hidden");
+  if (document.getElementById("autoPlay").checked) speakNow(fullSentence(q));
+}
+
+function renderResult() {
+  bar.style.width = "100%";
+  const correct = results.filter(r => r.ok).length;
+  const wrong = results.filter(r => !r.ok);
+  quizArea.innerHTML = `
+    <div class="card">
+      <div class="qno">結果</div>
+      <div class="score">${correct} / ${results.length}</div>
+      <p style="text-align:center;margin:0 0 12px">${correct === results.length ? "全問正解！すばらしい！" : "間違えた問題は「苦手」に保存されました。"}</p>
+      <ul class="result-list">
+        ${results.map(r => `<li><span class="mark ${r.ok ? "o" : "x"}">${r.ok ? "○" : "×"}</span>第${r.q.no}問 ${withAnswerHtml(r.q)}${r.ok ? "" : `<br><span class="meaning">あなたの答え：${escapeHtml(r.given)}</span>`}</li>`).join("")}
+      </ul>
+      <div class="nav">
+        <button class="btn sub" id="again">もう一度</button>
+        ${wrong.length ? `<button class="btn" id="retryWrong">間違えた問題だけ</button>` : ""}
+      </div>
+    </div>`;
+  document.getElementById("again").onclick = startQuiz;
+  if (wrong.length) document.getElementById("retryWrong").onclick = () => {
+    quiz = wrong.map(r => r.q); idx = 0; results = []; renderQuestion();
+  };
+}
+
+// ===== 一覧・発音カード =====
+function phraseCard(q, extra = "") {
+  return `
+    <div class="card" id="card-${q.no}">
+      <div class="qno">第${q.no}問 ${extra}</div>
+      <div class="ja">${escapeHtml(q.ja)}</div>
+      <div class="en">${withAnswerHtml(q)}</div>
+      <div class="meaning">${escapeHtml(q.meaning)}</div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn sub" data-say="${q.no}">▶ フレーズ</button>
+        <button class="btn ghost" data-word="${q.no}">▶ 単語</button>
+        <button class="btn rec" data-rec="${q.no}">🎤 発音チェック</button>
+      </div>
+      <div class="speech-out" id="out-${q.no}"></div>
+    </div>`;
+}
+function bindCards(root) {
+  const find = no => QUESTIONS.find(q => q.no === +no);
+  root.querySelectorAll("[data-say]").forEach(b => b.onclick = () => speakNow(fullSentence(find(b.dataset.say))));
+  root.querySelectorAll("[data-word]").forEach(b => b.onclick = () => speakNow(find(b.dataset.word).answer));
+  root.querySelectorAll("[data-rec]").forEach(b => b.onclick = () => {
+    const q = find(b.dataset.rec);
+    startRecognition(fullSentence(q), b, root.querySelector("#out-" + q.no));
+  });
+}
+function renderList() {
+  const area = document.getElementById("listArea");
+  area.innerHTML = QUESTIONS.map(q => phraseCard(q, missSet.has(q.no) ? "・苦手" : "")).join("");
+  bindCards(area);
+}
+function renderMiss() {
+  const area = document.getElementById("missArea");
+  const list = QUESTIONS.filter(q => missSet.has(q.no));
+  if (!list.length) { area.innerHTML = `<div class="card">苦手な問題はありません。</div>`; return; }
+  area.innerHTML = `<div class="card row"><span>${list.length}問</span><button class="btn" id="missQuiz">苦手だけテストする</button><button class="btn ghost" id="missClear">リセット</button></div>` + list.map(q => phraseCard(q)).join("");
+  bindCards(area);
+  document.getElementById("missQuiz").onclick = () => {
+    document.querySelector('.tab[data-view="test"]').click();
+    document.querySelector('.chip[data-order="miss"]').click();
+  };
+  document.getElementById("missClear").onclick = () => { if (confirm("苦手リストを空にしますか？")) { missSet.clear(); saveMiss(); renderMiss(); } };
+}
+
+// ===== 聞き流し =====
+let listenRunning = false;
+function renderListen() {
+  const area = document.getElementById("listenArea");
+  area.innerHTML = QUESTIONS.map(q => `
+    <div class="card" id="ls-${q.no}">
+      <div class="qno">第${q.no}問</div>
+      <div class="en" style="margin-bottom:4px">${withAnswerHtml(q)}</div>
+      <div class="ja" style="font-weight:400">${escapeHtml(q.ja)}</div>
+    </div>`).join("");
+}
+async function runListen() {
+  if (synth) synth.cancel();
+  listenRunning = true;
+  document.getElementById("listenStart").disabled = true;
+  document.getElementById("listenStop").disabled = false;
+  for (const q of QUESTIONS) {
+    if (!listenRunning) break;
+    const el = document.getElementById("ls-" + q.no);
+    document.querySelectorAll(".now-playing").forEach(e => e.classList.remove("now-playing"));
+    if (el) { el.classList.add("now-playing"); el.scrollIntoView({ behavior: "smooth", block: "center" }); }
+    await speak(fullSentence(q));
+    if (!listenRunning) break;
+    if (document.getElementById("listenJa").checked) { await speak(q.ja, "ja"); if (!listenRunning) break; }
+    await speak(fullSentence(q));
+    await new Promise(r => setTimeout(r, 600));
+  }
+  stopListen();
+}
+function stopListen() {
+  listenRunning = false;
+  if (synth) synth.cancel();
+  document.querySelectorAll(".now-playing").forEach(e => e.classList.remove("now-playing"));
+  document.getElementById("listenStart").disabled = false;
+  document.getElementById("listenStop").disabled = true;
+}
+document.getElementById("listenStart").onclick = runListen;
+document.getElementById("listenStop").onclick = stopListen;
+
+startQuiz();
+</script>
+</body>
+</html>
