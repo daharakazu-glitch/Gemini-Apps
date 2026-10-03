@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英語ネイティブ音声メーカー</title>
+<style>
+  :root {
+    --bg: #f3f5f9;
+    --card: #ffffff;
+    --text: #1f2937;
+    --sub: #6b7280;
+    --line: #e5e7eb;
+    --primary: #2563eb;
+    --primary-soft: #dbeafe;
+    --ok: #16a34a;
+    --ok-soft: #dcfce7;
+    --ng: #dc2626;
+    --ng-soft: #fee2e2;
+    --warn: #d97706;
+    --warn-soft: #fef3c7;
+    --hl: #fde68a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a; --card: #1e293b; --text: #e5e7eb; --sub: #94a3b8; --line: #334155;
+      --primary: #60a5fa; --primary-soft: #1e3a5f; --ok: #4ade80; --ok-soft: #14532d;
+      --ng: #f87171; --ng-soft: #4c1d1d; --warn: #fbbf24; --warn-soft: #4a3510; --hl: #6b5310;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "YuGothic", sans-serif;
+    line-height: 1.6; -webkit-tap-highlight-color: transparent;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 16px 16px 96px; }
+  header h1 { font-size: 1.3rem; margin: 8px 0 2px; }
+  header p { margin: 0; color: var(--sub); font-size: .85rem; }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 16px; margin-top: 14px;
+  }
+  .card h2 { font-size: 1rem; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+  .step {
+    display: inline-flex; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--primary); color: #fff; font-size: .8rem; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  textarea {
+    width: 100%; min-height: 180px; resize: vertical; padding: 12px;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--text);
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 1rem; line-height: 1.6;
+  }
+  textarea:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .between { justify-content: space-between; }
+  .muted { color: var(--sub); font-size: .8rem; }
+  .engine { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .engine label {
+    border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; cursor: pointer;
+    display: block; background: var(--card);
+  }
+  .engine input { display: none; }
+  .engine label:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+  .engine b { display: block; font-size: .92rem; }
+  .engine span { font-size: .75rem; color: var(--sub); }
+  .voices { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 12px; }
+  .voice {
+    border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 10px; cursor: pointer;
+    background: var(--card); display: flex; align-items: center; gap: 8px; text-align: left; color: var(--text);
+    font: inherit;
+  }
+  .voice.sel { border-color: var(--primary); background: var(--primary-soft); }
+  .voice .meta { flex: 1; min-width: 0; }
+  .voice .name { font-weight: 700; font-size: .92rem; }
+  .voice .tag { font-size: .72rem; color: var(--sub); }
+  .voice .star { color: var(--warn); font-size: .72rem; font-weight: 700; }
+  .voice .try {
+    border: 1px solid var(--line); background: var(--bg); color: var(--text); border-radius: 50%;
+    width: 32px; height: 32px; flex-shrink: 0; font-size: .8rem; cursor: pointer;
+  }
+  .group-title { font-size: .8rem; color: var(--sub); margin: 12px 0 0; font-weight: 700; }
+  select {
+    width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--text); font-size: .95rem; margin-top: 10px;
+  }
+  .slider { margin-top: 12px; }
+  .slider .row { justify-content: space-between; font-size: .9rem; }
+  input[type=range] { width: 100%; accent-color: var(--primary); }
+  .btn {
+    border: none; border-radius: 12px; padding: 12px 16px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; background: var(--primary); color: #fff; font-family: inherit;
+  }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn.sub { background: var(--card); color: var(--text); border: 1.5px solid var(--line); }
+  .btn.ng { background: var(--ng); }
+  .btn.wide { width: 100%; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .progress { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 10px; }
+  .progress > div { height: 100%; width: 0; background: var(--primary); transition: width .2s; }
+  .status { font-size: .85rem; margin-top: 6px; min-height: 1.4em; }
+  .status.err { color: var(--ng); }
+  .status.ok { color: var(--ok); }
+  audio { width: 100%; margin-top: 12px; }
+  .sentences { margin-top: 12px; max-height: 320px; overflow-y: auto; }
+  .sent {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; padding: 6px 8px; border-radius: 8px;
+    cursor: pointer; font-size: .95rem; display: flex; gap: 8px;
+  }
+  .sent .no { color: var(--sub); font-size: .75rem; min-width: 1.6em; padding-top: 3px; }
+  .sent.now { background: var(--hl); }
+  .sent.done .no { color: var(--ok); }
+  .note {
+    font-size: .8rem; border-radius: 10px; padding: 10px 12px; margin-top: 10px;
+    background: var(--warn-soft); color: var(--text);
+  }
+  .note.info { background: var(--primary-soft); }
+  details { margin-top: 12px; font-size: .88rem; }
+  summary { cursor: pointer; color: var(--sub); }
+  .hidden { display: none !important; }
+  .help ol { margin: 6px 0 0; padding-left: 1.3em; font-size: .85rem; }
+  .help li { margin: 2px 0; }
+  footer { text-align: center; color: var(--sub); font-size: .72rem; margin-top: 24px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🔊 英語ネイティブ音声メーカー</h1>
+    <p>英文を貼り付けて、声を選ぶだけ。ネイティブの音声を無料で作って、MP3で保存できます。</p>
+  </header>
+
+  <div class="card help">
+    <h2>使い方</h2>
+    <ol>
+      <li>英文を貼り付けます。</li>
+      <li>「AI音声」か「ブラウザ音声」を選び、声を選びます（▶で試聴できます）。</li>
+      <li>「音声を作る」を押すと、1文ずつ音声が作られます。</li>
+      <li>できあがったら再生したり、MP3・WAVで保存したりできます。</li>
+    </ol>
+    <div class="note info">AI音声は初回だけ音声モデル（約90MB）を読み込むので、1〜2分かかります。Wi-Fiにつないでから使ってください。2回目からはすぐに使えます。</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">1</span>英文を入力</h2>
+    <textarea id="text" placeholder="ここに英文を貼り付けてください。&#10;例: Life is like a box of chocolates. You never know what you're gonna get." spellcheck="false"></textarea>
+    <div class="row between">
+      <span class="muted" id="count">0 文字 / 0 文</span>
+      <button class="btn sub" id="clearBtn" style="padding:6px 12px;font-size:.8rem">クリア</button>
+    </div>
+    <div class="note hidden" id="jpWarn">日本語などの英語以外の文字が含まれています。英語の音声では正しく読めないため、英文だけにしてください。</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">2</span>声を選ぶ</h2>
+    <div class="engine">
+      <label><input type="radio" name="engine" value="ai" checked><b>🎙️ AI音声（高品質）</b><span>自然なネイティブ音声。MP3保存できます</span></label>
+      <label><input type="radio" name="engine" value="browser"><b>💻 ブラウザ音声</b><span>すぐに再生できます。保存はできません</span></label>
+    </div>
+
+    <div id="aiVoices"></div>
+
+    <div id="browserVoices" class="hidden">
+      <select id="browserVoiceSel"></select>
+      <div class="note">ブラウザ音声の声の種類と音質は、使っている端末によって変わります。この方式ではファイルとして保存できません。保存したいときはAI音声を使ってください。</div>
+    </div>
+
+    <div class="slider">
+      <div class="row"><span>話す速さ</span><b id="speedVal">1.0 倍</b></div>
+      <input type="range" id="speed" min="0.5" max="1.5" step="0.1" value="1">
+    </div>
+    <div class="slider">
+      <div class="row"><span>文と文の間（ポーズ）</span><b id="pauseVal">0.5 秒</b></div>
+      <input type="range" id="pause" min="0" max="5" step="0.5" value="0.5">
+      <div class="muted">リピーティングやディクテーションの音源には、2〜3秒くらいがおすすめです。</div>
+    </div>
+    <div class="slider">
+      <div class="row"><span>くり返し回数（1文ごと）</span><b id="repeatVal">1 回</b></div>
+      <input type="range" id="repeat" min="1" max="3" step="1" value="1">
+    </div>
+
+    <details id="advanced">
+      <summary>くわしい設定（AI音声）</summary>
+      <select id="device">
+        <option value="wasm">標準モード（約90MB・どの端末でも動きます）</option>
+        <option value="webgpu">高速モード（約330MB・GPU対応のPCのみ）</option>
+      </select>
+      <div class="muted" style="margin-top:6px">高速モードは Chrome / Edge の新しいパソコンで速くなります。動かないときは標準モードに戻してください。</div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2><span class="step">3</span>音声を作る・保存する</h2>
+    <button class="btn wide" id="genBtn">▶ 音声を作る</button>
+    <div class="progress"><div id="bar"></div></div>
+    <div class="status" id="status">準備ができています。</div>
+
+    <audio id="player" controls class="hidden"></audio>
+
+    <div class="actions" id="dlBox">
+      <button class="btn sub" id="mp3Btn" disabled>⬇ MP3で保存</button>
+      <button class="btn sub" id="wavBtn" disabled>⬇ WAVで保存</button>
+    </div>
+
+    <div class="sentences" id="sentences"></div>
+    <div class="muted" id="sentHint"></div>
+  </div>
+
+  <footer>
+    AI音声：Kokoro-82M（Apache-2.0）をブラウザ内で動かしています。入力した文章が外部に送信されることはありません。
+  </footer>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ===== 設定 =====
+  const KOKORO_URL = 'https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js';
+  const LAME_URL = 'https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/dist/lamejs.js';
+  const MODEL_ID = 'onnx-community/Kokoro-82M-v1.0-ONNX';
+  const SAMPLE_RATE = 24000;
+  const MAX_CHARS = 5000;
+  const SAMPLE_TEXT = 'Hello! This is a sample of my voice. I hope you enjoy learning English.';
+
+  const VOICES = [
+    { id: 'af_heart',    name: 'Heart',    region: 'us', gender: 'f', best: true },
+    { id: 'af_bella',    name: 'Bella',    region: 'us', gender: 'f', best: true },
+    { id: 'af_nicole',   name: 'Nicole',   region: 'us', gender: 'f', note: 'ささやき声' },
+    { id: 'af_sarah',    name: 'Sarah',    region: 'us', gender: 'f' },
+    { id: 'af_aoede',    name: 'Aoede',    region: 'us', gender: 'f' },
+    { id: 'am_michael',  name: 'Michael',  region: 'us', gender: 'm', best: true },
+    { id: 'am_fenrir',   name: 'Fenrir',   region: 'us', gender: 'm' },
+    { id: 'am_puck',     name: 'Puck',     region: 'us', gender: 'm' },
+    { id: 'bf_emma',     name: 'Emma',     region: 'gb', gender: 'f', best: true },
+    { id: 'bf_isabella', name: 'Isabella', region: 'gb', gender: 'f' },
+    { id: 'bm_george',   name: 'George',   region: 'gb', gender: 'm', best: true },
+    { id: 'bm_fable',    name: 'Fable',    region: 'gb', gender: 'm' },
+  ];
+  const REGION_NAME = { us: 'アメリカ英語', gb: 'イギリス英語' };
+  const REGION_FLAG = { us: '🇺🇸', gb: '🇬🇧' };
+  const GENDER_LABEL = { f: '女性', m: '男性' };
+
+  // ===== 保存（localStorage は使えないこともあるので try で包む） =====
+  const STORE_KEY = 'ondoku-maker-v1';
+  function loadPrefs() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch (e) { return {}; }
+  }
+  function savePrefs() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({
+        text: $text.value.slice(0, MAX_CHARS * 2), engine: engine(), voice: state.voice,
+        browserVoice: $browserVoiceSel.value, speed: $speed.value, pause: $pause.value,
+        repeat: $repeat.value, device: $device.value,
+      }));
+    } catch (e) { /* 保存できなくても動作には影響しない */ }
+  }
+
+  // ===== 要素 =====
+  const $ = (id) => document.getElementById(id);
+  const $text = $('text'), $count = $('count'), $jpWarn = $('jpWarn');
+  const $aiVoices = $('aiVoices'), $browserVoices = $('browserVoices'), $browserVoiceSel = $('browserVoiceSel');
+  const $speed = $('speed'), $pause = $('pause'), $repeat = $('repeat'), $device = $('device');
+  const $genBtn = $('genBtn'), $bar = $('bar'), $status = $('status'), $player = $('player');
+  const $mp3Btn = $('mp3Btn'), $wavBtn = $('wavBtn'), $dlBox = $('dlBox');
+  const $sentences = $('sentences'), $sentHint = $('sentHint');
+
+  const state = {
+    voice: 'af_heart',
+    busy: false,
+    cancel: false,
+    // 生成結果（AI音声）
+    clips: null,        // Float32Array[]（1文ごと）
+    clipKey: '',        // 生成時の テキスト+声+速さ
+    segments: [],       // 再生時のハイライト用 {start, end, index}
+    audioUrl: null,
+    mixed: null,        // 結合済み Float32Array
+    // ブラウザ音声の再生
+    speaking: false,
+  };
+
+  const engine = () => document.querySelector('input[name=engine]:checked').value;
+
+  // ===== 文の分割 =====
+  const ABBR = /(?:\b(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|St|Mt|vs|etc|No|Vol|Fig|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec|approx|cf)|\b[A-Z]|\b(?:e\.g|i\.e|a\.m|p\.m|U\.S|U\.K))\.$/;
+  function splitSentences(text) {
+    const result = [];
+    const paragraphs = text.replace(/\r/g, '').split(/\n+/);
+    for (const para of paragraphs) {
+      if (!para.trim()) continue;
+      const pieces = para.match(/[^.!?]+(?:[.!?]+["'”’)\]]*)?|[.!?]+["'”’)\]]*/g) || [];
+      const merged = [];
+      for (const piece of pieces) {
+        const prev = merged[merged.length - 1];
+        if (prev !== undefined && (ABBR.test(prev.trimEnd()) || /^(?:[0-9]|\s*[a-z,;:])/.test(piece) || !prev.trim())) {
+          merged[merged.length - 1] = prev + piece;
+        } else {
+          merged.push(piece);
+        }
+      }
+      for (const s of merged) {
+        const t = s.replace(/\s+/g, ' ').trim();
+        if (t && /[A-Za-z0-9]/.test(t)) result.push(...splitLong(t));
+        else if (t && result.length) result[result.length - 1] += t;
+      }
+    }
+    return result;
+  }
+  // AI音声は1回に読める長さに上限があるので、長すぎる文は区切りの良い所で分ける
+  function splitLong(s, limit = 280) {
+    const out = [];
+    while (s.length > limit) {
+      let cut = -1;
+      for (const re of [/[;:]\s/g, /,\s/g, /\s(?:and|but|or|because|which|that|when|while)\s/g, /\s/g]) {
+        let m;
+        re.lastIndex = 0;
+        while ((m = re.exec(s)) && m.index < limit) cut = m.index + (m[0].startsWith(' ') ? 0 : 1);
+        if (cut > limit * 0.4) break;
+        cut = -1;
+      }
+      if (cut <= 0) cut = limit;
+      out.push(s.slice(0, cut).trim());
+      s = s.slice(cut).trim();
+    }
+    if (s) out.push(s);
+    return out;
+  }
+
+  // ===== 画面：テキスト =====
+  function onTextChange() {
+    const v = $text.value;
+    const n = splitSentences(v).length;
+    $count.textContent = `${v.length.toLocaleString()} 文字 / ${n} 文` + (v.length > MAX_CHARS ? `（上限 ${MAX_CHARS.toLocaleString()} 文字を超えています）` : '');
+    $count.style.color = v.length > MAX_CHARS ? 'var(--ng)' : '';
+    $jpWarn.classList.toggle('hidden', !/[぀-ヿ㐀-鿿！-～]/.test(v));
+    if (!state.busy && !state.speaking) renderSentenceList(splitSentences(v));
+    markStale();
+    savePrefs();
+  }
+  $text.addEventListener('input', onTextChange);
+  $('clearBtn').addEventListener('click', () => { $text.value = ''; onTextChange(); $text.focus(); });
+
+  // ===== 画面：声 =====
+  function renderVoices() {
+    $aiVoices.innerHTML = '';
+    for (const region of ['us', 'gb']) {
+      const title = document.createElement('div');
+      title.className = 'group-title';
+      title.textContent = `${REGION_FLAG[region]} ${REGION_NAME[region]}`;
+      $aiVoices.appendChild(title);
+      const grid = document.createElement('div');
+      grid.className = 'voices';
+      grid.style.marginTop = '6px';
+      for (const v of VOICES.filter(x => x.region === region)) {
+        const el = document.createElement('div');
+        el.className = 'voice' + (v.id === state.voice ? ' sel' : '');
+        el.setAttribute('role', 'button');
+        el.tabIndex = 0;
+        el.dataset.id = v.id;
+        el.innerHTML = `<div class="meta"><div class="name">${v.name}</div><div class="tag">${GENDER_LABEL[v.gender]}${v.note ? '・' + v.note : ''}</div>${v.best ? '<div class="star">★ おすすめ</div>' : ''}</div><button class="try" title="試聴" aria-label="${v.name} を試聴">▶</button>`;
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.try')) { e.stopPropagation(); trySample(v.id); return; }
+          selectVoice(v.id);
+        });
+        el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectVoice(v.id); } });
+        grid.appendChild(el);
+      }
+      $aiVoices.appendChild(grid);
+    }
+  }
+  function selectVoice(id) {
+    state.voice = id;
+    document.querySelectorAll('.voice').forEach(el => el.classList.toggle('sel', el.dataset.id === id));
+    markStale();
+    savePrefs();
+  }
+
+  // ブラウザ音声の一覧
+  const synth = window.speechSynthesis;
+  function loadBrowserVoices() {
+    if (!synth) {
+      $browserVoiceSel.innerHTML = '<option value="">この端末ではブラウザ音声が使えません</option>';
+      return;
+    }
+    const prefs = loadPrefs();
+    const current = $browserVoiceSel.value || prefs.browserVoice;
+    const list = synth.getVoices().filter(v => /^en[-_]/i.test(v.lang) || v.lang === 'en');
+    list.sort((a, b) => a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name));
+    $browserVoiceSel.innerHTML = '';
+    if (!list.length) {
+      $browserVoiceSel.innerHTML = '<option value="">英語の音声が見つかりません</option>';
+      return;
+    }
+    const langName = { 'en-US': 'アメリカ', 'en-GB': 'イギリス', 'en-AU': 'オーストラリア', 'en-CA': 'カナダ', 'en-IN': 'インド', 'en-IE': 'アイルランド', 'en-NZ': 'ニュージーランド', 'en-ZA': '南アフリカ' };
+    for (const v of list) {
+      const o = document.createElement('option');
+      o.value = v.voiceURI;
+      const key = v.lang.replace('_', '-');
+      o.textContent = `${langName[key] || key}｜${v.name}`;
+      $browserVoiceSel.appendChild(o);
+    }
+    if (current && list.some(v => v.voiceURI === current)) $browserVoiceSel.value = current;
+    else {
+      const pref = list.find(v => /en-US/i.test(v.lang) && /Google|Samantha|Natural|Online/i.test(v.name)) || list[0];
+      $browserVoiceSel.value = pref.voiceURI;
+    }
+  }
+  if (synth) {
+    loadBrowserVoices();
+    synth.addEventListener && synth.addEventListener('voiceschanged', loadBrowserVoices);
+  }
+  $browserVoiceSel.addEventListener('change', savePrefs);
+
+  function onEngineChange() {
+    const ai = engine() === 'ai';
+    $aiVoices.classList.toggle('hidden', !ai);
+    $('advanced').classList.toggle('hidden', !ai);
+    $browserVoices.classList.toggle('hidden', ai);
+    $dlBox.classList.toggle('hidden', !ai);
+    $player.classList.toggle('hidden', !ai || !state.audioUrl);
+    stopAll();
+    renderSentenceList(splitSentences($text.value));
+    setStatus(ai ? (state.mixed && !isStale() ? '音声ができています。' : '準備ができています。') : 'ブラウザ音声はすぐに再生できます。');
+    updateGenBtn();
+    savePrefs();
+  }
+  document.querySelectorAll('input[name=engine]').forEach(r => r.addEventListener('change', onEngineChange));
+
+  // ===== スライダー =====
+  function onSlider() {
+    $('speedVal').textContent = Number($speed.value).toFixed(1) + ' 倍';
+    $('pauseVal').textContent = Number($pause.value).toFixed(1) + ' 秒';
+    $('repeatVal').textContent = $repeat.value + ' 回';
+  }
+  $speed.addEventListener('input', () => { onSlider(); markStale(); savePrefs(); });
+  // ポーズとくり返しは作り直さずに、つなぎ直すだけでよい
+  [$pause, $repeat].forEach(el => el.addEventListener('input', onSlider));
+  [$pause, $repeat].forEach(el => el.addEventListener('change', () => { savePrefs(); if (state.clips && !isStale()) remix(); }));
+  $device.addEventListener('change', () => {
+    savePrefs();
+    if (worker) { worker.terminate(); worker = null; modelReady = null; }
+  });
+
+  // ===== 状態表示 =====
+  function setStatus(msg, kind) {
+    $status.textContent = msg;
+    $status.className = 'status' + (kind ? ' ' + kind : '');
+  }
+  function setProgress(ratio) { $bar.style.width = Math.max(0, Math.min(1, ratio)) * 100 + '%'; }
+  function currentKey() { return [$text.value, state.voice, $speed.value].join('\u0000'); }
+  function isStale() { return state.clipKey !== currentKey(); }
+  function markStale() {
+    if (state.busy) return;
+    if (engine() === 'ai' && state.mixed && isStale()) {
+      $mp3Btn.disabled = $wavBtn.disabled = true;
+      setStatus('設定や英文が変わりました。「音声を作る」を押して作り直してください。');
+    }
+    updateGenBtn();
+  }
+  function updateGenBtn() {
+    if (state.busy || state.speaking) {
+      $genBtn.textContent = '■ 停止';
+      $genBtn.classList.add('ng');
+      return;
+    }
+    $genBtn.classList.remove('ng');
+    $genBtn.textContent = engine() === 'ai' ? '▶ 音声を作る' : '▶ 読み上げる';
+  }
+
+  // ===== 文リスト（ハイライト用） =====
+  function renderSentenceList(list) {
+    $sentences.innerHTML = '';
+    list.forEach((s, i) => {
+      const d = document.createElement('div');
+      d.className = 'sent';
+      d.dataset.i = i;
+      const no = document.createElement('span');
+      no.className = 'no';
+      no.textContent = i + 1;
+      const tx = document.createElement('span');
+      tx.textContent = s;
+      d.append(no, tx);
+      d.addEventListener('click', () => jumpTo(i));
+      $sentences.appendChild(d);
+    });
+    $sentHint.textContent = list.length ? '文をタップすると、その文から再生します。' : '';
+  }
+  function highlight(i) {
+    $sentences.querySelectorAll('.sent').forEach(el => {
+      const on = Number(el.dataset.i) === i;
+      el.classList.toggle('now', on);
+      if (on) {
+        const box = $sentences.getBoundingClientRect(), r = el.getBoundingClientRect();
+        if (r.top < box.top || r.bottom > box.bottom) $sentences.scrollTop += r.top - box.top - 40;
+      }
+    });
+  }
+  function markDone(i) {
+    const el = $sentences.querySelector(`.sent[data-i="${i}"]`);
+    if (el) el.classList.add('done');
+  }
+
+  // ===== AI音声（Web Worker 内で Kokoro を動かす） =====
+  const WORKER_SRC = `
+    let tts = null;
+    self.onmessage = async (e) => {
+      const msg = e.data;
+      try {
+        if (msg.type === 'load') {
+          const { KokoroTTS } = await import(msg.url);
+          const files = {};
+          tts = await KokoroTTS.from_pretrained(msg.model, {
+            dtype: msg.device === 'webgpu' ? 'fp32' : 'q8',
+            device: msg.device,
+            progress_callback: (p) => {
+              if (p.status === 'progress' && p.total) {
+                files[p.file] = [p.loaded, p.total];
+                let l = 0, t = 0;
+                for (const k in files) { l += files[k][0]; t += files[k][1]; }
+                self.postMessage({ type: 'progress', loaded: l, total: t });
+              }
+            },
+          });
+          self.postMessage({ type: 'ready' });
+        } else if (msg.type === 'generate') {
+          const audio = await tts.generate(msg.text, { voice: msg.voice, speed: msg.speed });
+          const data = audio.audio instanceof Float32Array ? audio.audio : new Float32Array(audio.audio);
+          self.postMessage({ type: 'audio', id: msg.id, data, rate: audio.sampling_rate }, [data.buffer]);
+        }
+      } catch (err) {
+        self.postMessage({ type: 'error', id: msg.id, where: msg.type, message: String(err && err.message || err) });
+      }
+    };
+  `;
+  let worker = null;
+  let modelReady = null;   // Promise
+  let reqId = 0;
+  const pending = new Map();
+
+  function getWorker() {
+    if (worker) return worker;
+    const url = URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' }));
+    worker = new Worker(url, { type: 'module' });
+    worker.onmessage = (e) => {
+      const m = e.data;
+      if (m.type === 'progress') {
+        setProgress(m.loaded / m.total);
+        setStatus(`音声モデルを読み込み中… ${(m.loaded / 1048576).toFixed(0)} / ${(m.total / 1048576).toFixed(0)} MB（初回のみ）`);
+      } else if (m.type === 'ready') {
+        pending.get('load') && pending.get('load').resolve();
+        pending.delete('load');
+      } else if (m.type === 'audio') {
+        const p = pending.get(m.id);
+        pending.delete(m.id);
+        p && p.resolve(m.data);
+      } else if (m.type === 'error') {
+        const key = m.where === 'load' ? 'load' : m.id;
+        const p = pending.get(key);
+        pending.delete(key);
+        p && p.reject(new Error(m.message));
+      }
+    };
+    worker.onerror = (e) => {
+      const err = new Error(e.message || '音声エンジンを起動できませんでした');
+      pending.forEach(p => p.reject(err));
+      pending.clear();
+    };
+    return worker;
+  }
+  function ensureModel() {
+    if (modelReady) return modelReady;
+    const w = getWorker();
+    modelReady = new Promise((resolve, reject) => {
+      pending.set('load', { resolve, reject });
+      w.postMessage({ type: 'load', url: KOKORO_URL, model: MODEL_ID, device: $device.value });
+    }).catch(err => { modelReady = null; if (worker) { worker.terminate(); worker = null; } throw err; });
+    return modelReady;
+  }
+  function synthesize(text, voice, speed) {
+    const id = ++reqId;
+    return new Promise((resolve, reject) => {
+      pending.set(id, { resolve, reject });
+      getWorker().postMessage({ type: 'generate', id, text, voice, speed });
+    });
+  }
+
+  function explainError(err) {
+    const m = String(err && err.message || err);
+    if (/fetch|network|Failed to load|import/i.test(m)) return 'インターネットから音声モデルを読み込めませんでした。接続を確認して、もう一度お試しください。';
+    if (/webgpu|adapter|gpu/i.test(m)) return 'この端末では高速モードが使えません。「くわしい設定」で標準モードに戻してください。';
+    if (/memory|allocation/i.test(m)) return 'メモリが足りませんでした。ほかのタブを閉じるか、文章を短くしてお試しください。';
+    return 'エラーが発生しました：' + m;
+  }
+
+  async function generateAI() {
+    const text = $text.value;
+    const list = splitSentences(text);
+    if (!list.length) { setStatus('英文を入力してください。', 'err'); return; }
+    if (text.length > MAX_CHARS) { setStatus(`文章が長すぎます。${MAX_CHARS.toLocaleString()} 文字以内にしてください。`, 'err'); return; }
+
+    stopAll();
+    state.busy = true; state.cancel = false;
+    updateGenBtn();
+    $mp3Btn.disabled = $wavBtn.disabled = true;
+    renderSentenceList(list);
+    setProgress(0);
+    const key = currentKey();
+    const voice = state.voice, speed = Number($speed.value);
+    try {
+      if (!modelReady) setStatus('音声モデルを準備しています…（初回は1〜2分かかります）');
+      await ensureModel();
+      const clips = [];
+      const t0 = performance.now();
+      for (let i = 0; i < list.length; i++) {
+        if (state.cancel) throw new Error('__cancel__');
+        highlight(i);
+        const left = i > 0 ? Math.round((performance.now() - t0) / i * (list.length - i) / 1000) : null;
+        setStatus(`音声を作っています… ${i + 1} / ${list.length} 文` + (left !== null ? `（残り約 ${left} 秒）` : ''));
+        setProgress(i / list.length);
+        clips.push(await synthesize(list[i], voice, speed));
+        markDone(i);
+      }
+      setProgress(1);
+      state.clips = clips;
+      state.clipKey = key;
+      state.sentences = list;
+      highlight(-1);
+      remix();
+      setStatus(`できあがりました（${list.length} 文・${formatTime(state.mixed.length / SAMPLE_RATE)}）。再生や保存ができます。`, 'ok');
+    } catch (err) {
+      highlight(-1);
+      if (err.message === '__cancel__') setStatus('停止しました。');
+      else { console.error(err); setStatus(explainError(err), 'err'); }
+      setProgress(0);
+    } finally {
+      state.busy = false;
+      updateGenBtn();
+    }
+  }
+
+  // 1文ごとの音声を、ポーズとくり返しを入れて1本につなぐ
+  function remix() {
+    const pauseLen = Math.round(Number($pause.value) * SAMPLE_RATE);
+    const repeat = Number($repeat.value);
+    const order = [];
+    state.clips.forEach((c, i) => { for (let r = 0; r < repeat; r++) order.push(i); });
+    let total = 0;
+    order.forEach((i, k) => { total += state.clips[i].length + (k < order.length - 1 ? pauseLen : 0); });
+    const out = new Float32Array(total);
+    const segments = [];
+    let pos = 0;
+    order.forEach((i, k) => {
+      const c = state.clips[i];
+      out.set(c, pos);
+      segments.push({ start: pos / SAMPLE_RATE, end: (pos + c.length) / SAMPLE_RATE, index: i });
+      pos += c.length + (k < order.length - 1 ? pauseLen : 0);
+    });
+    state.mixed = out;
+    state.segments = segments;
+    if (state.audioUrl) URL.revokeObjectURL(state.audioUrl);
+    state.audioUrl = URL.createObjectURL(encodeWav(out, SAMPLE_RATE));
+    $player.src = state.audioUrl;
+    $player.classList.remove('hidden');
+    $mp3Btn.disabled = $wavBtn.disabled = false;
+    if (state.clips && !state.busy && !isStale()) {
+      setStatus(`できあがりました（${state.clips.length} 文・${formatTime(out.length / SAMPLE_RATE)}）。再生や保存ができます。`, 'ok');
+    }
+  }
+
+  $player.addEventListener('timeupdate', () => {
+    const t = $player.currentTime;
+    const seg = state.segments.find(s => t >= s.start && t < s.end + 0.05);
+    highlight(seg ? seg.index : -1);
+  });
+  $player.addEventListener('ended', () => highlight(-1));
+
+  function jumpTo(i) {
+    if (state.busy) return;
+    if (engine() === 'ai') {
+      if (!state.mixed || isStale()) return;
+      const seg = state.segments.find(s => s.index === i);
+      if (seg) { $player.currentTime = seg.start; $player.play(); }
+    } else {
+      speakBrowser(i);
+    }
+  }
+
+  // 試聴
+  const sampleCache = new Map();
+  let sampleAudio = null;
+  async function trySample(voice) {
+    if (state.busy) return;
+    selectVoice(voice);
+    stopAll();
+    try {
+      const speed = Number($speed.value);
+      const k = voice + '|' + speed;
+      let clip = sampleCache.get(k);
+      if (!clip) {
+        state.busy = true; updateGenBtn();
+        if (!modelReady) setStatus('音声モデルを準備しています…（初回は1〜2分かかります）');
+        await ensureModel();
+        setStatus('試聴用の音声を作っています…');
+        clip = await synthesize(SAMPLE_TEXT, voice, speed);
+        sampleCache.set(k, clip);
+      }
+      const v = VOICES.find(x => x.id === voice);
+      setStatus(`試聴中：${v.name}（${REGION_NAME[v.region]}・${GENDER_LABEL[v.gender]}）`);
+      sampleAudio = new Audio(URL.createObjectURL(encodeWav(clip, SAMPLE_RATE)));
+      sampleAudio.play();
+      setProgress(0);
+    } catch (err) {
+      console.error(err);
+      setStatus(explainError(err), 'err');
+    } finally {
+      state.busy = false; updateGenBtn();
+    }
+  }
+
+  // ===== ブラウザ音声 =====
+  let speakToken = 0;
+  function speakBrowser(startIndex = 0) {
+    if (!synth) { setStatus('この端末ではブラウザ音声が使えません。', 'err'); return; }
+    const list = splitSentences($text.value);
+    if (!list.length) { setStatus('英文を入力してください。', 'err'); return; }
+    stopAll();
+    renderSentenceList(list);
+    const voice = synth.getVoices().find(v => v.voiceURI === $browserVoiceSel.value);
+    const rate = Number($speed.value), pauseMs = Number($pause.value) * 1000, repeat = Number($repeat.value);
+    const token = ++speakToken;
+    state.speaking = true;
+    updateGenBtn();
+    const queue = [];
+    for (let i = startIndex; i < list.length; i++) for (let r = 0; r < repeat; r++) queue.push(i);
+    let k = 0;
+    const next = () => {
+      if (token !== speakToken) return;
+      if (k >= queue.length) { finishBrowser('読み上げが終わりました。'); return; }
+      const i = queue[k++];
+      highlight(i);
+      setStatus(`読み上げ中… ${i + 1} / ${list.length} 文`);
+      setProgress((i + 1) / list.length);
+      const u = new SpeechSynthesisUtterance(list[i]);
+      if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = 'en-US';
+      u.rate = rate;
+      u.onend = () => { if (token === speakToken) setTimeout(next, k < queue.length ? pauseMs : 0); };
+      u.onerror = (e) => { if (token === speakToken && e.error !== 'interrupted' && e.error !== 'canceled') finishBrowser('読み上げ中にエラーが発生しました。', 'err'); };
+      synth.speak(u);
+    };
+    next();
+  }
+  function finishBrowser(msg, kind) {
+    speakToken++;
+    state.speaking = false;
+    highlight(-1);
+    setStatus(msg, kind);
+    updateGenBtn();
+  }
+
+  function stopAll() {
+    if (synth && (state.speaking || synth.speaking)) { speakToken++; synth.cancel(); }
+    if (state.speaking) { state.speaking = false; highlight(-1); }
+    if (!$player.paused) $player.pause();
+    if (sampleAudio) { sampleAudio.pause(); sampleAudio = null; }
+    updateGenBtn();
+  }
+
+  $genBtn.addEventListener('click', () => {
+    if (state.busy) { state.cancel = true; setStatus('停止しています…'); return; }
+    if (state.speaking) { stopAll(); setStatus('停止しました。'); return; }
+    if (engine() === 'ai') generateAI();
+    else speakBrowser(0);
+  });
+
+  // ===== ファイル書き出し =====
+  function toInt16(f32) {
+    const out = new Int16Array(f32.length);
+    for (let i = 0; i < f32.length; i++) {
+      const s = Math.max(-1, Math.min(1, f32[i]));
+      out[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+    }
+    return out;
+  }
+  function encodeWav(f32, rate) {
+    const pcm = toInt16(f32);
+    const buf = new ArrayBuffer(44 + pcm.length * 2);
+    const v = new DataView(buf);
+    const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + pcm.length * 2, true); w(8, 'WAVE');
+    w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    w(36, 'data'); v.setUint32(40, pcm.length * 2, true);
+    new Int16Array(buf, 44).set(pcm);
+    return new Blob([buf], { type: 'audio/wav' });
+  }
+  let lamePromise = null;
+  async function encodeMp3(f32, rate, onProgress) {
+    if (!lamePromise) lamePromise = import(LAME_URL).catch(e => { lamePromise = null; throw e; });
+    const lame = await lamePromise;
+    const enc = new lame.Mp3Encoder(1, rate, 96);
+    const pcm = toInt16(f32);
+    const chunks = [];
+    const BLOCK = 1152 * 40;
+    for (let i = 0; i < pcm.length; i += BLOCK) {
+      const out = enc.encodeBuffer(pcm.subarray(i, i + BLOCK));
+      if (out.length) chunks.push(new Uint8Array(out));
+      if ((i / BLOCK) % 20 === 19) { onProgress && onProgress(i / pcm.length); await new Promise(r => setTimeout(r)); }
+    }
+    const end = enc.flush();
+    if (end.length) chunks.push(new Uint8Array(end));
+    return new Blob(chunks, { type: 'audio/mpeg' });
+  }
+  function fileBase() {
+    const words = (state.sentences && state.sentences[0] || 'audio').replace(/[^A-Za-z0-9 ]/g, '').trim().split(/\s+/).slice(0, 5).join('_') || 'audio';
+    const v = VOICES.find(x => x.id === state.voice);
+    return `${words}_${v ? v.name : state.voice}`;
+  }
+  function download(blob, name) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  }
+  $wavBtn.addEventListener('click', () => {
+    if (!state.mixed) return;
+    download(encodeWav(state.mixed, SAMPLE_RATE), fileBase() + '.wav');
+  });
+  $mp3Btn.addEventListener('click', async () => {
+    if (!state.mixed) return;
+    $mp3Btn.disabled = true;
+    const prev = $status.textContent;
+    try {
+      setStatus('MP3に変換しています…');
+      const blob = await encodeMp3(state.mixed, SAMPLE_RATE, (r) => setStatus(`MP3に変換しています… ${Math.round(r * 100)}%`));
+      download(blob, fileBase() + '.mp3');
+      setStatus(prev, 'ok');
+    } catch (err) {
+      console.error(err);
+      setStatus('MP3に変換できませんでした。インターネット接続を確認するか、WAVで保存してください。', 'err');
+    } finally {
+      $mp3Btn.disabled = false;
+    }
+  });
+
+  function formatTime(sec) {
+    const s = Math.round(sec);
+    return s >= 60 ? `${Math.floor(s / 60)}分${s % 60}秒` : `${s}秒`;
+  }
+
+  // ===== 初期化 =====
+  const prefs = loadPrefs();
+  if (prefs.text) $text.value = prefs.text;
+  if (prefs.voice && VOICES.some(v => v.id === prefs.voice)) state.voice = prefs.voice;
+  if (prefs.speed) $speed.value = prefs.speed;
+  if (prefs.pause) $pause.value = prefs.pause;
+  if (prefs.repeat) $repeat.value = prefs.repeat;
+  if (prefs.device) $device.value = prefs.device;
+  if (prefs.engine === 'browser') document.querySelector('input[name=engine][value=browser]').checked = true;
+  renderVoices();
+  onSlider();
+  onTextChange();
+  onEngineChange();
+})();
+</script>
+</body>
+</html>
