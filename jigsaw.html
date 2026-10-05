@@ -25,16 +25,16 @@
     font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "YuGothic", sans-serif;
     line-height: 1.6; -webkit-tap-highlight-color: transparent;
   }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 16px 16px 96px; }
-  header h1 { font-size: 1.35rem; margin: 8px 0 2px; }
-  header p { margin: 0; color: var(--sub); font-size: .85rem; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 16px 16px 96px; }
+  header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 1.4rem; margin: 6px 0 0; }
   .goal {
     background: var(--goal); color: var(--goal-text); border-radius: 10px; padding: 10px 14px;
-    font-weight: 700; margin-top: 12px; font-size: .95rem;
+    font-weight: 700; margin-top: 12px; font-size: 1rem;
   }
   .tabs { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
   .tabs button {
-    flex: 1; min-width: 110px; padding: 10px 8px; border-radius: 10px; border: 1.5px solid var(--line);
+    flex: 1; min-width: 120px; padding: 10px 8px; border-radius: 10px; border: 1.5px solid var(--line);
     background: var(--card); color: var(--text); font-weight: 700; cursor: pointer; font-size: .9rem;
   }
   .tabs button.on { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
@@ -42,14 +42,11 @@
     background: var(--card); border: 1px solid var(--line); border-radius: 14px;
     padding: 16px; margin-top: 14px;
   }
-  .card h2 { font-size: 1.05rem; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
-  .step {
-    display: inline-flex; width: 26px; height: 26px; border-radius: 50%;
-    background: var(--primary); color: #fff; font-size: .8rem; align-items: center; justify-content: center; flex-shrink: 0;
-  }
+  .card h2 { font-size: 1.1rem; margin: 0 0 10px; }
   .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .between { justify-content: space-between; }
-  .muted { color: var(--sub); font-size: .82rem; }
+  .center { justify-content: center; }
+  .muted { color: var(--sub); font-size: .85rem; }
   .btn {
     padding: 10px 16px; border-radius: 10px; border: none; background: var(--primary); color: #fff;
     font-weight: 700; cursor: pointer; font-size: .95rem;
@@ -57,30 +54,12 @@
   .btn.sub { background: var(--card); color: var(--text); border: 1.5px solid var(--line); }
   .btn.ok { background: var(--ok); }
   .btn.small { padding: 6px 10px; font-size: .82rem; }
-  .btn:disabled { opacity: .45; cursor: default; }
-  textarea, input[type=text] {
-    width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
-    background: var(--bg); color: var(--text); font-size: 1rem; line-height: 1.5;
-    font-family: "Segoe UI", "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+  .btn:disabled { opacity: .4; cursor: default; }
+  input[type=number] {
+    width: 80px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--bg); color: var(--text); font-size: 1rem;
   }
-  textarea { min-height: 76px; resize: vertical; }
-  textarea:focus, input:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
-  .letters { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
-  .letters button {
-    aspect-ratio: 1; border-radius: 12px; border: 2px solid var(--line); background: var(--card);
-    color: var(--text); font-size: 1.6rem; font-weight: 800; cursor: pointer;
-  }
-  .letters button.on { border-color: var(--primary); background: var(--primary); color: #fff; }
-  .para {
-    font-family: Georgia, "Times New Roman", serif; font-size: 1.12rem; line-height: 1.85;
-    background: var(--bg); border-radius: 10px; padding: 14px 16px; border: 1px solid var(--line);
-  }
-  .para.big { font-size: 1.3rem; }
-  .badge {
-    display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 34px;
-    border-radius: 9px; background: var(--primary); color: #fff; font-weight: 800; font-size: 1.1rem; padding: 0 8px;
-  }
-  .phase-list { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .phase-list { display: flex; gap: 6px; flex-wrap: wrap; }
   .phase-list button {
     padding: 6px 10px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card);
     color: var(--sub); font-size: .8rem; cursor: pointer; font-weight: 700;
@@ -89,214 +68,104 @@
   .phase-list button.done { color: var(--ok); border-color: var(--ok); }
   .sublist { margin: 8px 0 0; padding: 0; list-style: none; }
   .sublist li {
-    display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px; margin-bottom: 6px;
-    border: 1px solid var(--line);
+    display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border-radius: 10px; margin-bottom: 6px;
+    border: 1px solid var(--line); font-size: 1.05rem;
   }
   .sublist li.on { border-color: var(--primary); background: var(--primary-soft); }
-  .sublist li.done { opacity: .55; }
-  .sublist .min { font-weight: 800; white-space: nowrap; min-width: 56px; }
-  .tag { display: inline-block; font-size: .72rem; font-weight: 800; padding: 1px 7px; border-radius: 6px; margin-right: 4px; }
-  .tag.y { background: var(--hl); color: var(--text); }
-  .tag.b { background: var(--primary-soft); color: var(--primary); }
+  .sublist li.done { opacity: .5; }
+  .sublist .min { font-weight: 800; white-space: nowrap; min-width: 60px; }
+  .tag { display: inline-block; font-size: .78rem; font-weight: 800; padding: 1px 7px; border-radius: 6px; margin-right: 6px; background: var(--hl); }
   .timer {
-    font-variant-numeric: tabular-nums; font-weight: 800; text-align: center; letter-spacing: .02em;
-    font-size: 3.4rem; line-height: 1.1; margin: 6px 0;
+    font-variant-numeric: tabular-nums; font-weight: 800; text-align: center;
+    font-size: 4.2rem; line-height: 1.1; margin: 8px 0 6px;
   }
   .timer.warn { color: var(--warn); }
   .timer.end { color: var(--ng); animation: blink 1s steps(2) infinite; }
   @keyframes blink { 50% { opacity: .35; } }
-  .bar { height: 8px; border-radius: 99px; background: var(--line); overflow: hidden; }
+  .bar { height: 10px; border-radius: 99px; background: var(--line); overflow: hidden; }
   .bar > div { height: 100%; background: var(--primary); transition: width .3s linear; }
-  .mini-timer { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); margin-top: 10px; }
-  .mini-timer .t { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 1.4rem; min-width: 72px; }
-  .mini-timer .t.end { color: var(--ng); }
-  .instr { font-size: 1.12rem; line-height: 1.7; }
-  .instr.proj { font-size: 1.45rem; }
-  .slot {
-    display: flex; gap: 10px; align-items: stretch; border: 2px solid var(--line); border-radius: 12px;
-    padding: 10px; margin-bottom: 8px; background: var(--card); transition: border-color .2s, background .2s;
+  .instr { font-size: 1.15rem; line-height: 1.75; }
+  .instr p { margin: 0 0 10px; }
+  .instr .ja { color: var(--sub); font-size: .95rem; }
+  .note {
+    margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--warn-soft);
+    font-size: .9rem; border-left: 4px solid var(--warn);
   }
-  .slot.sel { border-color: var(--primary); background: var(--primary-soft); }
-  .slot.right { border-color: var(--ok); background: var(--ok-soft); }
-  .slot.wrong { border-color: var(--ng); background: var(--ng-soft); }
-  .slot .pos { font-weight: 800; color: var(--sub); width: 28px; text-align: center; padding-top: 4px; font-size: .9rem; }
-  .slot .body { flex: 1; min-width: 0; }
-  .slot .ctrl { display: flex; flex-direction: column; gap: 4px; }
-  .slot .ctrl button {
-    width: 38px; height: 34px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg);
-    color: var(--text); cursor: pointer; font-size: 1rem;
+  .note b { color: var(--warn); }
+  mark { background: var(--hl); color: inherit; border-radius: 3px; padding: 0 2px; }
+  .para {
+    font-family: Georgia, "Times New Roman", serif; font-size: 1.02rem; line-height: 1.8;
   }
-  .slot textarea { min-height: 56px; font-size: .95rem; margin-top: 6px; }
-  .slot .grab { cursor: pointer; display: flex; align-items: center; gap: 8px; }
-  .result { margin-top: 12px; padding: 12px 14px; border-radius: 10px; font-weight: 700; }
+  .full p { margin: 0 0 12px; }
+  .full .num { display: inline-block; font-family: sans-serif; font-weight: 800; background: var(--primary); color: #fff; border-radius: 6px; padding: 0 7px; margin-right: 6px; font-size: .85rem; }
+  table.key { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  table.key th, table.key td { border: 1px solid var(--line); padding: 7px 8px; text-align: left; vertical-align: top; }
+  table.key th { background: var(--bg); white-space: nowrap; }
+  .chooser { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .chooser button {
+    text-align: left; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: var(--card); color: var(--text); cursor: pointer; font-size: .92rem; line-height: 1.4;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  .chooser button:disabled { opacity: .35; cursor: default; }
+  .seq { list-style: none; padding: 0; margin: 10px 0 0; }
+  .seq li { display: flex; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; border: 1.5px solid var(--line); margin-bottom: 6px; font-family: Georgia, serif; }
+  .seq li .n { font-family: sans-serif; font-weight: 800; width: 24px; text-align: center; }
+  .seq li.right { border-color: var(--ok); background: var(--ok-soft); }
+  .seq li.wrong { border-color: var(--ng); background: var(--ng-soft); }
+  .result { margin-top: 10px; padding: 10px 12px; border-radius: 10px; font-weight: 700; }
   .result.ok { background: var(--ok-soft); color: var(--ok); }
   .result.ng { background: var(--ng-soft); color: var(--ng); }
-  .result.info { background: var(--warn-soft); color: var(--warn); }
-  mark { background: var(--hl); color: inherit; border-radius: 3px; padding: 0 2px; }
-  .full p { margin: 0 0 14px; text-indent: 1.5em; }
-  .present { position: fixed; inset: 0; background: var(--bg); z-index: 50; overflow: auto; padding: 24px; }
-  .present .inner { max-width: 1000px; margin: 0 auto; }
-  .present h2 { font-size: 2rem; margin: 0 0 18px; }
-  .present ol { font-size: 1.45rem; line-height: 1.6; padding-left: 1.6em; }
-  .present li { margin-bottom: 14px; }
-  .hw-p { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px; }
-  .hw-p select {
-    font-size: 1.1rem; padding: 6px; border-radius: 8px; border: 2px solid var(--line);
-    background: var(--card); color: var(--text); font-weight: 800; width: 64px; flex-shrink: 0;
-  }
-  .hw-p select.right { border-color: var(--ok); background: var(--ok-soft); }
-  .hw-p select.wrong { border-color: var(--ng); background: var(--ng-soft); }
-  .hw-p .para { flex: 1; font-size: 1.02rem; }
-  details summary { cursor: pointer; font-weight: 700; }
-  table.key { width: 100%; border-collapse: collapse; font-size: .92rem; }
-  table.key th, table.key td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
-  table.key th { background: var(--bg); }
+  .groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-top: 10px; }
+  .groups div { border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 10px; text-align: center; }
+  .groups div b { display: block; font-size: 1.1rem; }
+  .groups div.five { border-color: var(--warn); background: var(--warn-soft); }
+  .picked { font-size: 3rem; font-weight: 800; text-align: center; margin: 10px 0; color: var(--primary); }
+  .picked-hist { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .picked-hist span { padding: 2px 10px; border-radius: 999px; background: var(--ok-soft); color: var(--ok); font-weight: 700; font-size: .85rem; }
   .hidden { display: none !important; }
-  .rules li { margin-bottom: 4px; }
-  .proj-mode .wrap { max-width: 1100px; }
-  .proj-mode .timer { font-size: 7rem; }
-  .proj-mode .card h2 { font-size: 1.4rem; }
-  .proj-mode .sublist li { font-size: 1.15rem; }
-  @media (max-width: 520px) {
-    .letters button { font-size: 1.25rem; }
-    .timer { font-size: 2.8rem; }
+
+  /* Projection mode: big text, hide teacher-only things */
+  body.proj .t-only { display: none !important; }
+  body.proj .wrap { max-width: 1400px; }
+  body.proj header h1 { font-size: 2rem; }
+  body.proj .goal { font-size: 1.5rem; padding: 14px 20px; }
+  body.proj .timer { font-size: 9rem; }
+  body.proj .instr { font-size: 1.8rem; }
+  body.proj .instr .ja { font-size: 1.4rem; }
+  body.proj .sublist li { font-size: 1.6rem; }
+  body.proj .card h2 { font-size: 1.7rem; }
+  body.proj .picked { font-size: 7rem; }
+  .projbtn { position: fixed; right: 14px; bottom: 14px; z-index: 20; box-shadow: 0 4px 14px rgba(0,0,0,.18); }
+  @media (max-width: 560px) {
+    .chooser { grid-template-columns: 1fr; }
+    .timer { font-size: 3.2rem; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>How do we choose what we eat?</h1>
-    <p>Jigsaw Reading — 段落の内容をつかみ、最も論理的な順番に並べよう</p>
+    <div>
+      <h1>How do we choose what we eat?</h1>
+      <div class="muted">Jigsaw Reading</div>
+    </div>
   </header>
   <div class="goal">Today's Goal: To use our own brains to grasp the content and arrange the paragraphs in the most logical order</div>
 
-  <nav class="tabs">
-    <button data-tab="student" class="on">🧑‍🎓 生徒</button>
-    <button data-tab="teacher">🧑‍🏫 先生（進行・タイマー）</button>
-    <button data-tab="homework">📝 Assignment</button>
+  <nav class="tabs t-only">
+    <button data-tab="run" class="on">⏱ 進行</button>
+    <button data-tab="groups">👥 班編成・発表班</button>
+    <button data-tab="check">✔ 順番チェック・解答</button>
+    <button data-tab="hw">📝 Assignment 解答</button>
   </nav>
 
-  <!-- ================= STUDENT ================= -->
-  <section id="tab-student">
-
-    <!-- Step 0: choose -->
-    <div class="card" id="s-setup">
-      <h2><span class="step">0</span>Get ready</h2>
-      <p class="muted">先生から渡された紙（カード）に書かれているアルファベットを選んでください。</p>
-      <div class="row" style="margin-bottom:10px">
-        <label for="groupNo" style="font-weight:700">班 Group</label>
-        <input type="text" id="groupNo" inputmode="numeric" placeholder="例: 3" style="width:90px">
-      </div>
-      <div class="letters" id="letterPick"></div>
-      <ul class="rules muted" style="margin:12px 0 0; padding-left:1.2em">
-        <li>Today we are going to use only handouts, a pencil &amp; an eraser, paper dictionaries and the LEAP book.</li>
-        <li>翻訳機能・翻訳サイトは使いません。自分の頭で読もう！</li>
-      </ul>
-    </div>
-
-    <!-- Step 1: individual -->
-    <div class="card hidden" id="s-indiv">
-      <h2><span class="step">1</span>Individual reading &amp; summarizing</h2>
+  <!-- ============ RUN ============ -->
+  <section id="tab-run">
+    <div class="card t-only">
       <div class="row between" style="margin-bottom:8px">
-        <div class="row"><span class="badge" id="myLetter">A</span><span class="muted" id="myGroupLabel"></span></div>
-        <button class="btn sub small" id="changeCard">カードを変更</button>
-      </div>
-      <ul class="sublist" id="indivSteps">
-        <li data-i="0"><span class="min">2 min</span><div><span class="tag y">速読</span>Read your own part individually <b>without dictionaries</b>.</div></li>
-        <li data-i="1"><span class="min">5 min</span><div><span class="tag y">精読</span>Read it again carefully <b>with dictionaries</b>.</div></li>
-        <li data-i="2"><span class="min">3 min</span><div><span class="tag y">1文要約</span><b>Make 1 sentence</b> to summarize your part <b>in English</b>.</div></li>
-      </ul>
-      <div class="mini-timer">
-        <span class="t" id="sTimer">2:00</span>
-        <div style="flex:1"><div class="bar"><div id="sBar" style="width:100%"></div></div></div>
-        <button class="btn small" id="sStart">▶ Start</button>
-        <button class="btn sub small" id="sNext">次へ</button>
-      </div>
-      <p class="muted" style="margin:6px 0 0">※ タイマーは自分用です。先生の合図があればそちらを優先してください。</p>
-
-      <div class="para big" id="myPara" style="margin-top:14px"></div>
-
-      <div style="margin-top:14px">
-        <label for="sum1" style="font-weight:700" id="sum1Label">英語要約の1文</label>
-        <p class="muted" style="margin:2px 0 6px">ヒント：むずかしければ、まずキーワードを3つ書き出してから文にしよう。</p>
-        <input type="text" id="keywords" placeholder="Keywords（例: climate change, diet, ...）" style="margin-bottom:6px">
-        <textarea id="sum1" placeholder="Write ONE sentence in English."></textarea>
-      </div>
-      <div class="row" style="margin-top:10px; justify-content:flex-end">
-        <button class="btn" id="toExpert">Expert meeting へ →</button>
-      </div>
-    </div>
-
-    <!-- Step 2: expert -->
-    <div class="card hidden" id="s-expert">
-      <h2><span class="step">2</span>Expert meeting</h2>
-      <p class="instr">同じアルファベット <span class="badge" id="expLetter">A</span> の人どうしで集まろう。<br>You are the <b>experts</b> of this paragraph!</p>
-      <ul class="sublist">
-        <li><span class="min">5 min</span><div>Share the outline ideas with other experts, passing your mini sheets <b>clockwise</b>.<br><span class="muted">紙を時計回りに回して、他の人の要約を読もう。</span></div></li>
-        <li><span class="min">3 min</span><div>Share the content. <b>(Japanese OK)</b><br><span class="muted">分からない所をお互いに確認しよう。</span></div></li>
-        <li><span class="min">2 min</span><div><b>Improve</b> the summary sentence.</div></li>
-      </ul>
-      <details style="margin-top:12px">
-        <summary>自分の段落をもう一度見る</summary>
-        <div class="para" id="expPara" style="margin-top:8px"></div>
-      </details>
-      <div style="margin-top:14px">
-        <label style="font-weight:700">最初の要約</label>
-        <div class="para" id="firstSum" style="font-family:inherit;font-size:.98rem"></div>
-      </div>
-      <div style="margin-top:10px">
-        <label for="sum2" style="font-weight:700">Improved summary（完成版の1文）</label>
-        <textarea id="sum2" placeholder="Make your summary sentence better."></textarea>
-      </div>
-      <div class="row between" style="margin-top:10px">
-        <button class="btn sub" id="backIndiv">← 戻る</button>
-        <button class="btn" id="toJigsaw">Jigsaw reading へ →</button>
-      </div>
-    </div>
-
-    <!-- Step 3: jigsaw -->
-    <div class="card hidden" id="s-jigsaw">
-      <h2><span class="step">3</span>Jigsaw reading</h2>
-      <p class="instr" style="margin-top:0">自分の班に戻って、担当した段落の内容を伝え合おう。</p>
-      <ul class="sublist">
-        <li><span class="min">5 min</span><div>Share the outline ideas with the group members, passing your mini sheets <b>anti-clockwise</b>.</div></li>
-        <li><span class="min">5 min</span><div>Put each paragraph in the logical order according to the content.<br><span class="muted">Focus on the topics and keywords of each paragraph. つなぎの言葉（this / another / too など）にも注目！</span></div></li>
-        <li><span class="min">5 min</span><div>Think of a <b>title</b> for the whole passage.</div></li>
-      </ul>
-
-      <p class="muted" style="margin:14px 0 6px">班のメンバーから聞いた要約を各カードに書き込み、↑↓ボタン（またはカードを2枚タップで入れ替え）で並べ替えよう。</p>
-      <div id="board"></div>
-      <div style="margin-top:10px">
-        <label for="title" style="font-weight:700">タイトル Title（全体のタイトル案）</label>
-        <input type="text" id="title" placeholder="Title of the whole passage">
-      </div>
-      <div class="row" style="margin-top:12px">
-        <button class="btn ok" id="checkOrder">✔ 順番をチェック</button>
-        <button class="btn sub" id="presentBtn">📣 発表モード</button>
-        <button class="btn sub" id="backExpert">← 戻る</button>
-      </div>
-      <div id="checkResult"></div>
-      <div id="reveal" class="hidden">
-        <div class="card" style="margin-top:14px">
-          <h2>🎉 完成した文章</h2>
-          <p class="muted">段落と段落をつなぐ手がかりを <mark>黄色</mark> で示しています。なぜこの順番になるか、班で確認しよう。</p>
-          <div class="para full" id="fullText"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row" style="margin-top:14px; justify-content:center">
-      <button class="btn sub small" id="resetAll">🗑 入力内容をすべて消去</button>
-    </div>
-  </section>
-
-  <!-- ================= TEACHER ================= -->
-  <section id="tab-teacher" class="hidden">
-    <div class="card">
-      <div class="row between">
-        <h2 style="margin:0">進行タイマー</h2>
-        <label class="row muted" style="gap:4px;cursor:pointer"><input type="checkbox" id="projMode"> 投影用（大きく表示）</label>
+        <b>場面を選ぶ</b>
+        <span class="muted" id="clock"></span>
       </div>
       <div class="phase-list" id="phaseList"></div>
     </div>
@@ -307,140 +176,176 @@
         <span class="muted" id="phaseTotal"></span>
       </div>
       <ul class="sublist" id="segList"></ul>
-      <div class="timer" id="tTimer">0:00</div>
-      <div class="bar"><div id="tBar" style="width:100%"></div></div>
-      <div class="row" style="justify-content:center; margin-top:12px">
+      <div id="timerBox">
+        <div class="timer" id="tTimer">0:00</div>
+        <div class="bar"><div id="tBar" style="width:100%"></div></div>
+      </div>
+      <div class="row center" style="margin-top:12px">
         <button class="btn sub" id="tPrev">⏮ 前へ</button>
         <button class="btn" id="tStart">▶ Start</button>
         <button class="btn sub" id="tReset">↺ Reset</button>
         <button class="btn sub" id="tNext">次へ ⏭</button>
       </div>
-      <div class="row" style="justify-content:center; margin-top:8px">
+      <div class="row center t-only" style="margin-top:8px">
         <button class="btn sub small" data-add="-30">−30秒</button>
         <button class="btn sub small" data-add="30">＋30秒</button>
         <button class="btn sub small" data-add="60">＋1分</button>
-        <label class="row muted" style="gap:4px;cursor:pointer"><input type="checkbox" id="autoNext" checked> 終了したら次へ自動で進む</label>
+        <label class="row muted" style="gap:4px;cursor:pointer"><input type="checkbox" id="autoNext" checked> 時間になったら次の区切りへ自動で進む</label>
+        <label class="row muted" style="gap:4px;cursor:pointer"><input type="checkbox" id="sound" checked> 終了音</label>
       </div>
-      <div class="instr" id="phaseInstr" style="margin-top:16px"></div>
     </div>
 
     <div class="card">
-      <details id="keyBox">
-        <summary>🔑 先生用：解答・指導メモ（生徒に見せない）</summary>
-        <div id="keyBody" style="margin-top:12px"></div>
-      </details>
+      <div class="instr" id="phaseInstr"></div>
+      <div class="t-only" id="phaseNote"></div>
     </div>
   </section>
 
-  <!-- ================= HOMEWORK ================= -->
-  <section id="tab-homework" class="hidden">
-    <div class="card">
-      <h2>📝 Assignment</h2>
-      <p style="margin-top:0">新聞の社説（<i>Want to save the world? Go vegetarian</i>）に対する読者の投書です。各段落を読んで、<b>正しい段落番号（1〜4）</b>を選ぼう。</p>
-      <div class="row" style="margin-bottom:12px">
-        <label for="hwTitle" style="font-weight:700">タイトル</label>
-        <input type="text" id="hwTitle" placeholder="この投書にタイトルをつけよう" style="flex:1">
-      </div>
-      <div id="hwList"></div>
+  <!-- ============ GROUPS ============ -->
+  <section id="tab-groups" class="hidden">
+    <div class="card t-only">
+      <h2>👥 班編成の目安</h2>
       <div class="row">
-        <button class="btn ok" id="hwCheck">✔ 答え合わせ</button>
-        <button class="btn sub" id="hwReset">リセット</button>
+        <label for="nStudents"><b>出席人数</b></label>
+        <input type="number" id="nStudents" min="1" max="60" value="40"> 人
       </div>
-      <div id="hwResult"></div>
-      <div id="hwReveal" class="hidden card" style="margin-top:14px">
-        <h2>✅ 正しい順番</h2>
-        <p class="muted">手がかりになる表現を <mark>黄色</mark> で示しています。</p>
-        <div class="para full" id="hwFull"></div>
+      <div id="groupPlan" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <h2>📣 発表する班をランダムに選ぶ</h2>
+      <div class="row t-only">
+        <label for="nGroups"><b>班の数</b></label>
+        <input type="number" id="nGroups" min="1" max="12" value="7">
+        <button class="btn sub small" id="pickReset">選ばれた班をリセット</button>
       </div>
+      <div class="picked" id="picked">Group ?</div>
+      <div class="row center"><button class="btn" id="pickBtn">🎲 選ぶ</button></div>
+      <div class="picked-hist" id="pickHist" style="margin-top:10px"></div>
+      <p class="muted center" style="text-align:center">一度選ばれた班は次は選ばれません。</p>
+    </div>
+  </section>
+
+  <!-- ============ CHECK ============ -->
+  <section id="tab-check" class="hidden">
+    <div class="card t-only">
+      <h2>✔ 班の答えをその場でチェック</h2>
+      <p class="muted" style="margin-top:0">班が並べた順番に、段落の書き出しをタップしてください（机間指導中に確認できます）。</p>
+      <div class="chooser" id="chooser"></div>
+      <ol class="seq" id="seq"></ol>
+      <div class="row">
+        <button class="btn sub small" id="seqUndo">1つ戻す</button>
+        <button class="btn sub small" id="seqClear">クリア</button>
+      </div>
+      <div id="seqResult"></div>
+    </div>
+
+    <div class="card t-only">
+      <h2>🔑 解答（正しい順番と手がかり）</h2>
+      <table class="key" id="keyTable"></table>
+      <p style="margin:12px 0 4px"><b>タイトル例</b></p>
+      <ul style="margin:0; padding-left:1.2em" class="para">
+        <li>Go Vegetarian to Save the Planet</li>
+        <li>Why We Should Stop Eating Meat</li>
+        <li>Change Your Diet, Change the World</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="row between">
+        <h2 style="margin:0">📖 完成した文章</h2>
+        <label class="row muted t-only" style="gap:4px;cursor:pointer"><input type="checkbox" id="showClues" checked> 手がかりを強調</label>
+      </div>
+      <p class="muted">段落どうしをつなぐ表現に注目しよう。</p>
+      <div class="para full" id="fullText"></div>
+    </div>
+  </section>
+
+  <!-- ============ HOMEWORK ============ -->
+  <section id="tab-hw" class="hidden">
+    <div class="card">
+      <h2>📝 Assignment：投書の段落番号</h2>
+      <p class="muted" style="margin-top:0">社説 <i>Want to save the world? Go vegetarian</i> に対する読者の投書。</p>
+      <table class="key" id="hwTable"></table>
+    </div>
+    <div class="card">
+      <div class="row between">
+        <h2 style="margin:0">📖 正しい順番の全文</h2>
+        <label class="row muted t-only" style="gap:4px;cursor:pointer"><input type="checkbox" id="hwClues" checked> 手がかりを強調</label>
+      </div>
+      <div class="para full" id="hwFull" style="margin-top:10px"></div>
     </div>
   </section>
 </div>
 
-<div class="present hidden" id="present">
-  <div class="inner">
-    <div class="row between" style="margin-bottom:12px">
-      <span class="muted" id="presentGroup"></span>
-      <button class="btn sub" id="closePresent">✕ 閉じる</button>
-    </div>
-    <h2 id="presentTitle"></h2>
-    <ol id="presentList"></ol>
-  </div>
-</div>
+<button class="btn projbtn" id="projBtn">📽 投影モード</button>
 
 <script>
 (() => {
-  // ---------- Data ----------
-  // Letters are shuffled so that the label does not reveal the order.
-  const PARAS = {
-    A: { n: 3, text: "The benefits don't end with lowering carbon emissions. Animal welfare is another major factor behind the increasing numbers of people choosing a vegetarian diet. Today's meat production results in factory farms. Here, animals are packed together in tiny cages with no room to exercise and no access to the outside world.",
-         clues: ["The benefits don't end with lowering carbon emissions", "another major factor"],
-         model: "Animal welfare is another reason to go vegetarian, because factory-farmed animals are packed into tiny cages." },
-    B: { n: 6, text: "Given the impact of meat production on human health, animal health, and the health of the planet as a whole, switching to a vegetarian diet is the obvious way to make a real difference.",
-         clues: ["Given the impact of meat production on human health, animal health, and the health of the planet"],
-         model: "Going vegetarian is the best way to protect people, animals and the planet.", simplify: true },
-    C: { n: 2, text: "Turning vegetarian is not only good for your health; it's good for the planet too. According to some estimates, raising farm animals accounts for more than a seventh of total global greenhouse gas emissions. That's more than all forms of transportation we use combined. Removing meat from our diets would allow us to cut carbon emissions, and dramatically reduce the impact of climate change.",
-         clues: ["Turning vegetarian", "climate change"],
-         model: "A vegetarian diet is good for the planet because raising farm animals produces more greenhouse gases than all transportation." },
-    D: { n: 5, text: "Meat consumption affects human health in other ways too. Diets high in meat – especially red meat – have been proved to increase the risk of heart disease and other serious illnesses such as cancer. One recent international study showed that people who consume large amounts of red and processed meat are nearly 30% more likely to die early than people who follow a vegetarian diet.",
-         clues: ["in other ways too"],
-         model: "Eating a lot of red and processed meat raises the risk of serious illnesses and early death." },
-    E: { n: 1, text: "Many of us worry about climate change and all the problems it is already causing, from flooding and extreme weather events to droughts and mass extinctions. This list of catastrophes can make us feel helpless. But there is something that we can all do to make a difference: change our diet.",
-         clues: ["But there is something that we can all do to make a difference: change our diet"],
-         model: "Climate change makes us feel helpless, but we can all make a difference by changing our diet." },
-    F: { n: 4, text: "This overcrowding makes it easier for disease to spread among the factory-farmed animals. To prevent this from happening, they are given large doses of antibiotics. Modern methods of meat production have been linked to an increase in antibiotic-resistant bacteria, meaning that it is becoming more and more difficult to treat simple infections in the human population too.",
-         clues: ["This overcrowding", "in the human population too"],
-         model: "Overcrowding spreads disease, and the antibiotics given to animals create resistant bacteria that are dangerous for humans too." }
-  };
-  const LETTERS = Object.keys(PARAS);
-  const ANSWER = LETTERS.slice().sort((a, b) => PARAS[a].n - PARAS[b].n);
-  const CLUE_NOTES = {
-    E: "導入：気候変動の問題 → But で「食生活を変える」という主張へ。",
-    C: "Turning vegetarian ... good for the planet：主張を受けて1つ目の利点（環境）。",
-    A: "The benefits don't end with lowering carbon emissions → 前段落（温室効果ガス）を受ける。another major factor：2つ目の理由（動物福祉）。",
-    F: "This overcrowding → 前段落の packed together in tiny cages を指す。human population too で人間の健康へ橋渡し。",
-    D: "in other ways too → 前段落（耐性菌）に続く、人間の健康への別の影響。",
-    B: "Given the impact ... on human health, animal health, and the health of the planet → これまでの内容をまとめる結論。"
-  };
-
-  const HW = {
-    W: { n: 4, text: "For several years now, my family and I have been flexitarians. We still eat meat, but two or three times a week rather than every day. This kind of flexitarian diet is far more realistic for most people than full vegetarianism. It lowers overall meat consumption, reducing the need for factory farming, and promotes the long-term health of people and planet, both of which are issues close to the hearts of readers of this newspaper.",
-         clues: ["For several years now, my family and I have been flexitarians"] },
-    X: { n: 2, text: "I accept that livestock farming does contribute toward global warming, but the same is true of all food production. If we move to a completely vegetarian diet, more land is going to be needed for agriculture. This land will have to be intensively farmed in order to meet the food needs of our growing population. This means more fertilizers, more agricultural machines, more irrigation—in short, more damage to the environment, not less.",
-         clues: ["I accept that", "but"] },
-    Y: { n: 1, text: "Your editorial (Want to save the world? Go vegetarian, 21 August) raises some important issues. However, its central argument that we should cut meat out of our diet altogether is misguided for a number of reasons.",
-         clues: ["Your editorial", "for a number of reasons"] },
-    Z: { n: 3, text: "Like many of your readers, I also agree that factory farming should have no place in the 21st century. This is why we have seen an explosion in organic and free-range meat over the last few years. Raising animals in this way means there is no need for antibiotics, and removes the issues related to animal and human health referred to in your editorial. Obviously, meat produced in this non-intensive way is more expensive—but that's how it should be. Meat should not be something we consume every day. Neither should it be something we have to give up altogether: we evolved as omnivores, and meat provides important nutrition which vegetarian diets may lack.",
-         clues: ["I also agree", "Neither should it be something we have to give up altogether"] }
-  };
-  const HW_ORDER = ["X", "Z", "Y", "W"]; // display order (shuffled)
-
-  // ---------- Storage (safe) ----------
-  const KEY = "jigsaw-diet-v1";
-  let st = {};
-  try { st = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { st = {}; }
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} };
-  st.sums = st.sums || {};
-  st.order = Array.isArray(st.order) && st.order.length === 6 ? st.order : ["D", "A", "E", "B", "F", "C"];
-
   const $ = id => document.getElementById(id);
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const fmt = s => { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
-  function highlight(text, clues) {
+  const highlight = (text, clues, on) => {
     let h = esc(text);
-    clues.forEach(c => { const e = esc(c); h = h.replace(e, "<mark>" + e + "</mark>"); });
+    if (on) clues.forEach(c => { const e = esc(c); h = h.replace(e, "<mark>" + e + "</mark>"); });
     return h;
-  }
+  };
+  const opening = t => t.split(" ").slice(0, 6).join(" ") + " …";
+
+  // ---------- Data (in the correct order) ----------
+  const PARAS = [
+    { text: "Many of us worry about climate change and all the problems it is already causing, from flooding and extreme weather events to droughts and mass extinctions. This list of catastrophes can make us feel helpless. But there is something that we can all do to make a difference: change our diet.",
+      clues: ["But there is something that we can all do to make a difference: change our diet"],
+      note: "導入：気候変動の問題提起 → But で「食生活を変える」という主張へ。",
+      model: "Climate change makes us feel helpless, but we can all make a difference by changing our diet." },
+    { text: "Turning vegetarian is not only good for your health; it's good for the planet too. According to some estimates, raising farm animals accounts for more than a seventh of total global greenhouse gas emissions. That's more than all forms of transportation we use combined. Removing meat from our diets would allow us to cut carbon emissions, and dramatically reduce the impact of climate change.",
+      clues: ["Turning vegetarian", "good for the planet too"],
+      note: "主張（change our diet）を Turning vegetarian と具体化。1つ目の利点＝環境（温室効果ガス）。",
+      model: "A vegetarian diet is good for the planet because raising farm animals produces more greenhouse gases than all transportation." },
+    { text: "The benefits don't end with lowering carbon emissions. Animal welfare is another major factor behind the increasing numbers of people choosing a vegetarian diet. Today's meat production results in factory farms. Here, animals are packed together in tiny cages with no room to exercise and no access to the outside world.",
+      clues: ["The benefits don't end with lowering carbon emissions", "another major factor"],
+      note: "lowering carbon emissions が前段落を受ける。another major factor で2つ目の理由（動物福祉）。",
+      model: "Animal welfare is another reason to go vegetarian, because factory-farmed animals are packed into tiny cages." },
+    { text: "This overcrowding makes it easier for disease to spread among the factory-farmed animals. To prevent this from happening, they are given large doses of antibiotics. Modern methods of meat production have been linked to an increase in antibiotic-resistant bacteria, meaning that it is becoming more and more difficult to treat simple infections in the human population too.",
+      clues: ["This overcrowding", "in the human population too"],
+      note: "This overcrowding が前段落の packed together in tiny cages を指す。human population too で人間の健康へ橋渡し。",
+      model: "Overcrowding spreads disease, and the antibiotics given to animals create resistant bacteria that are dangerous for humans too." },
+    { text: "Meat consumption affects human health in other ways too. Diets high in meat – especially red meat – have been proved to increase the risk of heart disease and other serious illnesses such as cancer. One recent international study showed that people who consume large amounts of red and processed meat are nearly 30% more likely to die early than people who follow a vegetarian diet.",
+      clues: ["in other ways too"],
+      note: "in other ways too：前段落（耐性菌）に続く、人間の健康への別の影響。",
+      model: "Eating a lot of red and processed meat raises the risk of serious illnesses and early death." },
+    { text: "Given the impact of meat production on human health, animal health, and the health of the planet as a whole, switching to a vegetarian diet is the obvious way to make a real difference.",
+      clues: ["Given the impact of meat production on human health, animal health, and the health of the planet as a whole"],
+      note: "これまでの3つの観点（人・動物・地球）をまとめる結論。make a real difference が第1段落と呼応。※もとが1文なので「もっと分かりやすい英語1文にする」段落。",
+      model: "Going vegetarian is the best way to protect people, animals and the planet." }
+  ];
+
+  const HW = [
+    { text: "Your editorial (Want to save the world? Go vegetarian, 21 August) raises some important issues. However, its central argument that we should cut meat out of our diet altogether is misguided for a number of reasons.",
+      clues: ["Your editorial", "However", "for a number of reasons"],
+      note: "社説への言及と反論の提示（導入）。for a number of reasons → 以下に理由が続く。" },
+    { text: "I accept that livestock farming does contribute toward global warming, but the same is true of all food production. If we move to a completely vegetarian diet, more land is going to be needed for agriculture. This land will have to be intensively farmed in order to meet the food needs of our growing population. This means more fertilizers, more agricultural machines, more irrigation—in short, more damage to the environment, not less.",
+      clues: ["I accept that", "but the same is true of all food production"],
+      note: "理由①：環境面。社説の主張を一部認めつつ（I accept that …, but）反論。" },
+    { text: "Like many of your readers, I also agree that factory farming should have no place in the 21st century. This is why we have seen an explosion in organic and free-range meat over the last few years. Raising animals in this way means there is no need for antibiotics, and removes the issues related to animal and human health referred to in your editorial. Obviously, meat produced in this non-intensive way is more expensive—but that's how it should be. Meat should not be something we consume every day. Neither should it be something we have to give up altogether: we evolved as omnivores, and meat provides important nutrition which vegetarian diets may lack.",
+      clues: ["I also agree", "Neither should it be something we have to give up altogether"],
+      note: "理由②：動物・人間の健康面。also で前段落に追加。" },
+    { text: "For several years now, my family and I have been flexitarians. We still eat meat, but two or three times a week rather than every day. This kind of flexitarian diet is far more realistic for most people than full vegetarianism. It lowers overall meat consumption, reducing the need for factory farming, and promotes the long-term health of people and planet, both of which are issues close to the hearts of readers of this newspaper.",
+      clues: ["For several years now, my family and I have been flexitarians", "far more realistic"],
+      note: "結論：自分の提案（flexitarian diet）。前段落の「毎日でも全廃でもない」を具体化。" }
+  ];
 
   // ---------- Beep ----------
   let actx = null;
   function beep(times = 3) {
+    if (!$("sound").checked) return;
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
       for (let i = 0; i < times; i++) {
         const o = actx.createOscillator(), g = actx.createGain();
         o.frequency.value = 880; o.connect(g); g.connect(actx.destination);
         const t = actx.currentTime + i * 0.35;
-        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.3, t + 0.02);
+        g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.35, t + 0.02);
         g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
         o.start(t); o.stop(t + 0.3);
       }
@@ -448,221 +353,63 @@
   }
 
   // ---------- Tabs ----------
+  const TABS = ["run", "groups", "check", "hw"];
   document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => {
     document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b));
-    ["student", "teacher", "homework"].forEach(t => $("tab-" + t).classList.toggle("hidden", t !== b.dataset.tab));
+    TABS.forEach(t => $("tab-" + t).classList.toggle("hidden", t !== b.dataset.tab));
   }));
 
-  // ================= STUDENT =================
-  const steps = ["s-setup", "s-indiv", "s-expert", "s-jigsaw"];
-  function show(step) {
-    st.step = step; save();
-    steps.forEach(s => $(s).classList.toggle("hidden", s !== step));
-    if (step === "s-indiv") renderIndiv();
-    if (step === "s-expert") renderExpert();
-    if (step === "s-jigsaw") renderBoard();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
-  // letter picker
-  LETTERS.forEach(L => {
-    const b = document.createElement("button");
-    b.textContent = L;
-    b.addEventListener("click", () => {
-      st.letter = L; st.group = $("groupNo").value.trim(); save();
-      show("s-indiv");
-    });
-    $("letterPick").appendChild(b);
-  });
-  $("groupNo").value = st.group || "";
-  $("groupNo").addEventListener("input", e => { st.group = e.target.value.trim(); save(); });
-  $("changeCard").addEventListener("click", () => { if (confirm("カードを選び直しますか？（入力した要約は残ります）")) show("s-setup"); });
-
-  function renderIndiv() {
-    const L = st.letter, p = PARAS[L];
-    $("myLetter").textContent = L;
-    $("myGroupLabel").textContent = st.group ? "Group " + st.group : "";
-    $("myPara").textContent = p.text;
-    $("sum1Label").textContent = p.simplify ? "もっと分かりやすい英語1文にする" : "英語要約の1文";
-    $("keywords").value = (st.kw && st.kw[L]) || "";
-    $("sum1").value = (st.sums[L] && st.sums[L].first) || "";
-    setMini(st.miniIdx || 0);
-  }
-  $("keywords").addEventListener("input", e => { st.kw = st.kw || {}; st.kw[st.letter] = e.target.value; save(); });
-  $("sum1").addEventListener("input", e => {
-    const s = st.sums[st.letter] = st.sums[st.letter] || {};
-    s.first = e.target.value; save();
+  // ---------- Projection mode ----------
+  $("projBtn").addEventListener("click", () => {
+    const on = document.body.classList.toggle("proj");
+    $("projBtn").textContent = on ? "🧑‍🏫 先生画面に戻る" : "📽 投影モード";
+    if (on && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+    if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {});
   });
 
-  // student mini timer
-  const MINI = [120, 300, 180];
-  let miniIdx = 0, miniLeft = 120, miniRun = null;
-  function setMini(i) {
-    miniIdx = i; st.miniIdx = i; save();
-    stopMini(); miniLeft = MINI[i];
-    document.querySelectorAll("#indivSteps li").forEach(li => {
-      const k = +li.dataset.i;
-      li.classList.toggle("on", k === i); li.classList.toggle("done", k < i);
-    });
-    drawMini();
-    $("sNext").disabled = i >= MINI.length - 1;
-  }
-  function drawMini() {
-    $("sTimer").textContent = fmt(miniLeft);
-    $("sTimer").classList.toggle("end", miniLeft <= 0);
-    $("sBar").style.width = (miniLeft / MINI[miniIdx] * 100) + "%";
-  }
-  function stopMini() { clearInterval(miniRun); miniRun = null; $("sStart").textContent = "▶ Start"; }
-  $("sStart").addEventListener("click", () => {
-    if (miniRun) { stopMini(); return; }
-    if (miniLeft <= 0) miniLeft = MINI[miniIdx];
-    let last = Date.now();
-    $("sStart").textContent = "⏸ Pause";
-    miniRun = setInterval(() => {
-      const now = Date.now(); miniLeft -= (now - last) / 1000; last = now;
-      if (miniLeft <= 0) { miniLeft = 0; stopMini(); beep(2); }
-      drawMini();
-    }, 250);
-  });
-  $("sNext").addEventListener("click", () => { if (miniIdx < MINI.length - 1) setMini(miniIdx + 1); });
-  $("toExpert").addEventListener("click", () => show("s-expert"));
-
-  function renderExpert() {
-    const L = st.letter, s = st.sums[L] || {};
-    $("expLetter").textContent = L;
-    $("expPara").textContent = PARAS[L].text;
-    $("firstSum").textContent = s.first || "（まだ書いていません）";
-    $("sum2").value = s.improved != null ? s.improved : (s.first || "");
-  }
-  $("sum2").addEventListener("input", e => {
-    const s = st.sums[st.letter] = st.sums[st.letter] || {};
-    s.improved = e.target.value; save();
-  });
-  $("backIndiv").addEventListener("click", () => show("s-indiv"));
-  $("toJigsaw").addEventListener("click", () => show("s-jigsaw"));
-  $("backExpert").addEventListener("click", () => show("s-expert"));
-
-  // board
-  let selected = null;
-  function summaryOf(L) {
-    st.board = st.board || {};
-    if (st.board[L] != null) return st.board[L];
-    if (L === st.letter) { const s = st.sums[L] || {}; return s.improved || s.first || ""; }
-    return "";
-  }
-  function renderBoard() {
-    const box = $("board"); box.innerHTML = "";
-    $("title").value = st.title || "";
-    st.order.forEach((L, i) => {
-      const d = document.createElement("div");
-      d.className = "slot" + (selected === L ? " sel" : "");
-      d.innerHTML =
-        '<div class="pos">' + (i + 1) + '</div>' +
-        '<div class="body">' +
-          '<div class="grab"><span class="badge">' + L + '</span>' +
-          '<span class="muted">' + (L === st.letter ? "あなたの担当" : "タップで選択 → もう1枚タップで入れ替え") + '</span></div>' +
-          '<textarea placeholder="Paragraph ' + L + ' の要約（聞いた内容をメモ）">' + esc(summaryOf(L)) + '</textarea>' +
-        '</div>' +
-        '<div class="ctrl"><button aria-label="上へ" data-up>↑</button><button aria-label="下へ" data-down>↓</button></div>';
-      d.querySelector("textarea").addEventListener("input", e => {
-        st.board = st.board || {}; st.board[L] = e.target.value; save();
-      });
-      d.querySelector(".grab").addEventListener("click", () => {
-        if (selected == null) selected = L;
-        else if (selected === L) selected = null;
-        else {
-          const a = st.order.indexOf(selected), b = st.order.indexOf(L);
-          [st.order[a], st.order[b]] = [st.order[b], st.order[a]];
-          selected = null; save(); clearCheck();
-        }
-        renderBoard();
-      });
-      d.querySelector("[data-up]").addEventListener("click", () => move(i, -1));
-      d.querySelector("[data-down]").addEventListener("click", () => move(i, 1));
-      box.appendChild(d);
-    });
-  }
-  function move(i, dir) {
-    const j = i + dir; if (j < 0 || j >= st.order.length) return;
-    [st.order[i], st.order[j]] = [st.order[j], st.order[i]];
-    save(); clearCheck(); renderBoard();
-  }
-  function clearCheck() { $("checkResult").innerHTML = ""; }
-  $("title").addEventListener("input", e => { st.title = e.target.value; save(); });
-
-  $("checkOrder").addEventListener("click", () => {
-    st.tries = (st.tries || 0) + 1; save();
-    const correct = st.order.filter((L, i) => L === ANSWER[i]).length;
-    const slots = document.querySelectorAll("#board .slot");
-    slots.forEach((s, i) => { s.classList.remove("sel", "right", "wrong"); });
-    if (correct === 6) {
-      slots.forEach(s => s.classList.add("right"));
-      $("checkResult").innerHTML = '<div class="result ok">🎉 Perfect! 6つすべて正しい順番です。最後にタイトルを考えよう。</div>';
-      $("fullText").innerHTML = ANSWER.map(L => "<p>" + highlight(PARAS[L].text, PARAS[L].clues) + "</p>").join("");
-      $("reveal").classList.remove("hidden");
-      return;
-    }
-    $("reveal").classList.add("hidden");
-    let msg = '<div class="result ng">6つ中 <b>' + correct + '</b> つが正しい位置にあります。もう一度考えよう！</div>';
-    if (st.tries >= 2) {
-      msg += '<div class="result info">💡 ヒント：段落の最初の文に注目。<b>This ...</b>（前の内容を指す）、<b>another</b>（2つ目以降）、<b>... too</b>（追加）、<b>Given ...</b>（まとめ）などが手がかりになります。</div>';
-    }
-    if (st.tries >= 4) {
-      const firstWrong = st.order.findIndex((L, i) => L !== ANSWER[i]);
-      slots.forEach((s, i) => { if (i < firstWrong) s.classList.add("right"); });
-      msg += '<div class="result info">💡 さらにヒント：上から ' + firstWrong + ' 番目までは正しい順番です（緑のカード）。</div>';
-    }
-    $("checkResult").innerHTML = msg;
-  });
-
-  // presentation
-  $("presentBtn").addEventListener("click", () => {
-    $("presentGroup").textContent = st.group ? "Group " + st.group : "";
-    $("presentTitle").textContent = st.title ? "Title: " + st.title : "Title: （未記入）";
-    $("presentList").innerHTML = st.order.map(L => "<li>" + (esc(summaryOf(L)) || '<span class="muted">（' + L + ' の要約が未記入）</span>') + "</li>").join("");
-    $("present").classList.remove("hidden");
-  });
-  $("closePresent").addEventListener("click", () => $("present").classList.add("hidden"));
-
-  $("resetAll").addEventListener("click", () => {
-    if (!confirm("この端末に保存された要約・並べ替え・タイトルをすべて消去します。よろしいですか？")) return;
-    st = { sums: {}, order: ["D", "A", "E", "B", "F", "C"] }; save();
-    $("groupNo").value = ""; $("reveal").classList.add("hidden"); clearCheck();
-    show("s-setup");
-  });
-
-  show(st.letter && st.step && st.step !== "s-setup" ? st.step : "s-setup");
-
-  // ================= TEACHER =================
+  // ============ RUN ============
   const PHASES = [
     { name: "Greeting / LEAP", segs: [{ m: 10, t: "Greeting ／ LEAP小テスト" }],
-      instr: "Greeting → LEAP 小テスト" },
-    { name: "Introduction", segs: [{ m: 5, t: "Today's goal & rules" }],
-      instr: "Today we are going to use only <b>handouts, a pencil &amp; an eraser, paper dictionaries</b> (not Chromebook!!!) and <b>LEAP book</b> if you have.<br><br>The goal of today is <b>to use your brains to grasp the content and arrange the paragraphs in the most logical order.</b>" },
+      instr: "<p>Greeting</p><p>LEAP quiz</p>",
+      note: "" },
+    { name: "Introduction", segs: [{ m: 5, t: "Materials &amp; today's goal" }],
+      instr: "<p>Today we are going to use only <b>handouts, a pencil &amp; an eraser, paper dictionaries</b> (not Chromebook!!!) and <b>LEAP book</b> if you have.</p><p>The goal of today is <b>to use your brains to grasp the content and arrange the paragraphs in the most logical order.</b></p>",
+      note: "<b>留意点：</b>本時の目標を共有する。電子辞書も可。Chromebook は翻訳機能を使う可能性があるため使用不可。後から他の人の席を使う場面もあるので、使わないものはしまわせる。" },
     { name: "Explanation", segs: [{ m: 5, t: "How Jigsaw reading works" }],
-      instr: "Today we will experience <b>Jigsaw reading</b> for the first time! It sounds like a jigsaw puzzle, right? It's like a game to train our brains.<br>Let's make a group of six.<br><br>① Each of you will read only <b>one paragraph</b> and grasp the outline of the part.<br>② Later, the students who take the same paragraph will gather together and have an <b>\"Expert meeting\"</b>. You should be an expert of the paragraph.<br>③ Then, you will go back to your group and tell the outline of your part to other group members. With your group members, put each part in the <b>right order</b>. Focus on the topics and keywords of each paragraph." },
+      instr: "<p>Today we will experience <b>Jigsaw reading</b> for the first time! It sounds like a jigsaw puzzle, right? It's like a game to train our brains.</p>" +
+             "<p>Let's make <b>a group of six</b>. At first, please take one of the papers.</p>" +
+             "<p>① Each of you will read only <b>one paragraph</b> and grasp the outline of the part.</p>" +
+             "<p>② Later, the students who take the same paragraph will gather together and have an <b>“Expert meeting”</b>. You should be an expert of the paragraph.</p>" +
+             "<p>③ Then, you will go back to your group and tell the outline of your part to other group members. With your group members, put each part in the <b>right order</b> — the 1st, 2nd, 3rd, 4th, 5th and 6th paragraph. Focus on the <b>topics and keywords</b> of each paragraph.</p>",
+      note: "<b>留意点：</b>短冊状になった1セットを各班に配布。6人にならない班は教員が入ってサポート（「班編成・発表班」タブで人数の目安を確認）。英語でも分かりやすく指示し、理解度を確認しながら進める。" },
     { name: "Individual reading", segs: [
-        { m: 2, t: "<span class='tag y'>速読</span>Read your own part <b>without dictionaries</b>" },
-        { m: 5, t: "<span class='tag y'>精読</span>Read it <b>with dictionaries</b>" },
-        { m: 3, t: "<span class='tag y'>1文要約</span><b>Make 1 sentence</b> to summarize your part <b>in English</b>" }],
-      instr: "静かに活動しよう。1文要約が難しい人は、まずキーワードを見つけて書き出そう。" },
+        { m: 2, t: "<span class='tag'>速読</span>Read your own part <b>without dictionaries</b>" },
+        { m: 5, t: "<span class='tag'>精読</span>Read it again <b>with dictionaries</b>" },
+        { m: 3, t: "<span class='tag'>1文要約</span><b>Make 1 sentence</b> to summarize your part <b>in English</b>" }],
+      instr: "<p>Work <b>quietly</b> and <b>individually</b>.</p><p class='ja'>1文要約が難しい人は、まずキーワードを見つけて書き出そう。</p>",
+      note: "<b>留意点：</b>1文要約が難しい生徒にはキーワードを見つけるよう伝え、何かしら書けるようにサポートする。静かに活動させる。" },
     { name: "Expert meeting", segs: [
         { m: 5, t: "Share the outline ideas with other experts — pass your mini sheets <b>clockwise</b>" },
         { m: 3, t: "Share the content <b>(Japanese OK)</b>" },
         { m: 2, t: "<b>Improve</b> the summary sentence" }],
-      instr: "同じアルファベットの人どうしで集まろう。分からない所をお互いに確認しよう。" },
+      instr: "<p>Students with <b>the same paragraph</b>, get together!</p><p class='ja'>同じ段落を担当した人どうしで集まろう。分からない所をお互いに確認しよう。</p>",
+      note: "<b>留意点：</b>紙を時計回りに回して読ませる。分からない所をお互いに確認させる。" },
     { name: "Jigsaw reading", segs: [
         { m: 5, t: "Share the outline ideas with the group members — pass your mini sheets <b>anti-clockwise</b>" },
         { m: 5, t: "Put each paragraph in the <b>logical order</b> according to the content" },
-        { m: 5, t: "台紙に貼る ＆ 全体の<b>タイトル</b>を書く" }],
-      instr: "班全員で段落の順番を確認しよう。台紙には英語要約の1文のところだけ切って貼ろう。最後に全体のタイトルを書こう。" },
-    { name: "Sharing", segs: [{ m: 5, t: "発表：タイトルと1文要約を順番に読み上げる" }],
-      instr: "Group ___, please read your <b>title</b> and your <b>summary sentences</b> in order." },
+        { m: 5, t: "Paste your summary sentences on the sheet in order &amp; write a <b>title</b>" }],
+      instr: "<p>Go back to <b>your group</b>!</p><p class='ja'>台紙には「英語要約の1文」のところだけ切って、段落の順番どおりに貼ろう。台紙上の「タイトル」に全体のタイトル案を書こう。</p>",
+      note: "<b>留意点：</b>紙を反時計回りに回して読ませる。班全員で段落の順番を確認させる。のりが6〜7つあるとよい。「順番チェック・解答」タブで班の答えをその場で確認できる。" },
+    { name: "Sharing", segs: [{ m: 5, t: "Read your title and summary sentences in order" }],
+      instr: "<p>Please read your <b>title</b> and your <b>summary sentences</b> in order.</p>",
+      note: "<b>留意点：</b>1つか2つの班を選び、タイトルと1文要約を順番に従って読み上げさせる（「班編成・発表班」タブでランダムに選べる）。発表後、「順番チェック・解答」タブの「完成した文章」を投影して確認できる。" },
     { name: "Assignment", segs: [{ m: 0, t: "宿題プリントを配付" }],
-      instr: "<b>Assignment:</b> 渡されたプリントを読んで、各段落の正しい段落番号を入れてくること！" }
+      instr: "<p><b>Assignment:</b></p><p>渡されたプリントを読んで、各段落の正しい段落番号を入れてくること！</p>",
+      note: "" }
   ];
   let ph = 0, sg = 0, tLeft = 0, tRun = null;
-  function segSec() { return PHASES[ph].segs[sg].m * 60; }
+  const segSec = () => PHASES[ph].segs[sg].m * 60;
+
   function renderPhaseList() {
     const box = $("phaseList"); box.innerHTML = "";
     PHASES.forEach((p, i) => {
@@ -681,9 +428,11 @@
     const tot = P.segs.reduce((a, x) => a + x.m, 0);
     $("phaseTotal").textContent = tot ? tot + " min" : "";
     $("segList").innerHTML = P.segs.map((x, i) =>
-      '<li class="' + (i === sg ? "on" : (i < sg ? "done" : "")) + '"><span class="min">' + (x.m ? x.m + " min" : "—") + '</span><div>' + x.t + '</div></li>'
+      '<li class="' + (i === sg ? "on" : (i < sg ? "done" : "")) + '"><span class="min">' + (x.m ? "For " + x.m + " min" : "") + '</span><div>' + x.t + '</div></li>'
     ).join("");
     $("phaseInstr").innerHTML = P.instr;
+    $("phaseNote").innerHTML = P.note ? '<div class="note">' + P.note + '</div>' : "";
+    $("timerBox").classList.toggle("hidden", tot === 0);
     renderPhaseList(); drawT();
   }
   function drawT() {
@@ -693,18 +442,11 @@
     $("tTimer").classList.toggle("end", tot > 0 && tLeft <= 0);
     $("tBar").style.width = (tot ? Math.min(100, tLeft / tot * 100) : 0) + "%";
     $("tStart").disabled = tot === 0;
+    $("tPrev").disabled = ph === 0 && sg === 0;
+    $("tNext").disabled = ph === PHASES.length - 1 && sg === PHASES[ph].segs.length - 1;
   }
   function stopT() { clearInterval(tRun); tRun = null; $("tStart").textContent = "▶ Start"; }
-  function nextSeg() {
-    if (sg < PHASES[ph].segs.length - 1) gotoSeg(ph, sg + 1);
-    else if (ph < PHASES.length - 1) gotoSeg(ph + 1, 0);
-  }
-  function prevSeg() {
-    if (sg > 0) gotoSeg(ph, sg - 1);
-    else if (ph > 0) gotoSeg(ph - 1, PHASES[ph - 1].segs.length - 1);
-  }
-  $("tStart").addEventListener("click", () => {
-    if (tRun) { stopT(); return; }
+  function startT() {
     if (tLeft <= 0) tLeft = segSec();
     let last = Date.now();
     $("tStart").textContent = "⏸ Pause";
@@ -712,73 +454,132 @@
       const now = Date.now(); tLeft -= (now - last) / 1000; last = now;
       if (tLeft <= 0) {
         tLeft = 0; stopT(); beep(3); drawT();
-        const isLast = sg === PHASES[ph].segs.length - 1;
-        if ($("autoNext").checked && !isLast) {
-          setTimeout(() => { gotoSeg(ph, sg + 1); $("tStart").click(); }, 1500);
+        if ($("autoNext").checked && sg < PHASES[ph].segs.length - 1) {
+          const p = ph, s = sg;
+          setTimeout(() => { if (ph === p && sg === s && !tRun) { gotoSeg(ph, sg + 1); startT(); } }, 2000);
         }
         return;
       }
       drawT();
     }, 250);
-  });
+  }
+  $("tStart").addEventListener("click", () => tRun ? stopT() : startT());
   $("tReset").addEventListener("click", () => { stopT(); tLeft = segSec(); drawT(); });
-  $("tNext").addEventListener("click", nextSeg);
-  $("tPrev").addEventListener("click", prevSeg);
+  $("tNext").addEventListener("click", () => {
+    if (sg < PHASES[ph].segs.length - 1) gotoSeg(ph, sg + 1);
+    else if (ph < PHASES.length - 1) gotoSeg(ph + 1, 0);
+  });
+  $("tPrev").addEventListener("click", () => {
+    if (sg > 0) gotoSeg(ph, sg - 1);
+    else if (ph > 0) gotoSeg(ph - 1, PHASES[ph - 1].segs.length - 1);
+  });
   document.querySelectorAll("[data-add]").forEach(b => b.addEventListener("click", () => {
     tLeft = Math.max(0, tLeft + Number(b.dataset.add)); drawT();
   }));
-  $("projMode").addEventListener("change", e => {
-    document.body.classList.toggle("proj-mode", e.target.checked);
-    $("phaseInstr").classList.toggle("proj", e.target.checked);
+  gotoSeg(0, 0);
+
+  const tick = () => { const d = new Date(); $("clock").textContent = "現在 " + d.getHours() + ":" + String(d.getMinutes()).padStart(2, "0"); };
+  tick(); setInterval(tick, 15000);
+
+  // ============ GROUPS ============
+  function planGroups() {
+    const n = Math.max(1, Math.min(60, parseInt($("nStudents").value, 10) || 0));
+    // Prefer groups of six; remaining students make groups of five (teacher joins).
+    let six = Math.floor(n / 6), rest = n % 6, five = 0;
+    if (rest === 5) five = 1;
+    else if (rest > 0) {
+      // convert some sixes to fives so that everyone is in a group of 5 or 6
+      const need = 6 - rest; // number of fives needed = need, each five frees one seat
+      if (six >= need - 1) { six -= (need - 1); five = need; }
+      else { five = 0; }
+    }
+    const covered = six * 6 + five * 5;
+    const left = n - covered;
+    let html = '<p style="margin:0 0 6px"><b>6人班 × ' + six + '</b>' + (five ? '　／　<b>5人班 × ' + five + '</b>（教員が入ってサポート）' : '') + '　＝ 計 ' + (six + five) + ' 班</p>';
+    if (left) html += '<p class="muted">※ ' + left + ' 人が余ります。4人班をつくり、教員がサポートするなど調整してください。</p>';
+    html += '<div class="groups">';
+    let g = 1;
+    for (let i = 0; i < six; i++) html += '<div><b>Group ' + (g++) + '</b>6人</div>';
+    for (let i = 0; i < five; i++) html += '<div class="five"><b>Group ' + (g++) + '</b>5人＋先生</div>';
+    html += '</div>';
+    html += '<p class="muted" style="margin-top:10px">Expert meeting では、同じ段落の担当者が各班から1人ずつ集まります（1グループ約 ' + (six + five) + ' 人）。5人班の欠けた段落は教員が担当するか、誰かが2つ担当してください。</p>';
+    $("groupPlan").innerHTML = html;
+    $("nGroups").value = six + five || 1;
+  }
+  $("nStudents").addEventListener("input", planGroups);
+  planGroups();
+
+  let pickedList = [];
+  function renderPicks() {
+    $("pickHist").innerHTML = pickedList.map(g => "<span>Group " + g + "</span>").join("");
+  }
+  $("pickBtn").addEventListener("click", () => {
+    const n = Math.max(1, parseInt($("nGroups").value, 10) || 1);
+    const pool = []; for (let i = 1; i <= n; i++) if (!pickedList.includes(i)) pool.push(i);
+    if (!pool.length) { $("picked").textContent = "全班 発表済み"; return; }
+    let k = 0; const spins = 14;
+    $("pickBtn").disabled = true;
+    const iv = setInterval(() => {
+      $("picked").textContent = "Group " + pool[Math.floor(Math.random() * pool.length)];
+      if (++k >= spins) {
+        clearInterval(iv);
+        const g = pool[Math.floor(Math.random() * pool.length)];
+        $("picked").textContent = "Group " + g;
+        pickedList.push(g); renderPicks(); beep(1);
+        $("pickBtn").disabled = false;
+      }
+    }, 70);
   });
-  gotoSeg(3, 0);
+  $("pickReset").addEventListener("click", () => { pickedList = []; renderPicks(); $("picked").textContent = "Group ?"; });
 
-  // answer key
-  $("keyBody").innerHTML =
-    '<p style="margin-top:0"><b>正しい順番：</b> ' + ANSWER.join(" → ") + '</p>' +
-    '<table class="key"><tr><th>順</th><th>カード</th><th>つながりの手がかり</th><th>要約例</th></tr>' +
-    ANSWER.map((L, i) => '<tr><td>' + (i + 1) + '</td><td><b>' + L + '</b></td><td>' + esc(CLUE_NOTES[L]) + '</td><td>' + esc(PARAS[L].model) + (PARAS[L].simplify ? '<br><span class="muted">（この段落はもとが1文なので「もっと分かりやすい英語1文にする」）</span>' : '') + '</td></tr>').join("") +
-    '</table>' +
-    '<p><b>タイトル例：</b> Go Vegetarian to Save the Planet ／ Why We Should Stop Eating Meat ／ A Vegetarian Diet Makes a Real Difference</p>' +
-    '<p><b>Assignment の答え：</b> ' + ["Y", "X", "Z", "W"].map((L, i) => (i + 1) + "＝" + L).join("、") + '（画面上は X, Z, Y, W の順に表示）</p>' +
-    '<p class="muted">・カードのアルファベットは順番が分からないようにランダムに付けています（印刷カードに同じアルファベットを書いて配付してください）。<br>・6人班にならない班は教員が入ってサポート。<br>・1班か2班を選び、タイトルと1文要約を順番に読み上げさせる（生徒画面の「発表モード」を投影可）。</p>';
-
-  // ================= HOMEWORK =================
-  function renderHW() {
-    st.hw = st.hw || {};
-    $("hwTitle").value = st.hwTitle || "";
-    $("hwList").innerHTML = HW_ORDER.map(L =>
-      '<div class="hw-p"><select data-l="' + L + '" aria-label="Paragraph number"><option value="">?</option>' +
-      [1, 2, 3, 4].map(n => '<option' + (String(st.hw[L]) === String(n) ? " selected" : "") + '>' + n + '</option>').join("") +
-      '</select><div class="para">' + esc(HW[L].text) + '</div></div>'
+  // ============ CHECK ============
+  // Shuffled display order for the chooser so the layout does not reveal the answer.
+  const SHUF = [3, 0, 5, 2, 4, 1];
+  let seq = [];
+  function renderChooser() {
+    $("chooser").innerHTML = SHUF.map(i =>
+      '<button data-i="' + i + '"' + (seq.includes(i) ? " disabled" : "") + '>' + esc(opening(PARAS[i].text)) + '</button>'
     ).join("");
-    $("hwList").querySelectorAll("select").forEach(s => s.addEventListener("change", e => {
-      st.hw[e.target.dataset.l] = e.target.value; save();
-      e.target.classList.remove("right", "wrong");
+    $("chooser").querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+      seq.push(+b.dataset.i); renderSeq();
     }));
   }
-  $("hwTitle").addEventListener("input", e => { st.hwTitle = e.target.value; save(); });
-  $("hwCheck").addEventListener("click", () => {
-    let ok = 0, blank = 0;
-    $("hwList").querySelectorAll("select").forEach(s => {
-      const L = s.dataset.l; s.classList.remove("right", "wrong");
-      if (!s.value) { blank++; return; }
-      const r = Number(s.value) === HW[L].n; if (r) ok++;
-      s.classList.add(r ? "right" : "wrong");
-    });
-    if (blank) { $("hwResult").innerHTML = '<div class="result info">すべての段落に番号を選んでから答え合わせしよう。</div>'; return; }
-    if (ok === 4) {
-      $("hwResult").innerHTML = '<div class="result ok">🎉 全問正解！ 手がかりになった表現を確認しよう。</div>';
-      $("hwFull").innerHTML = HW_ORDER.slice().sort((a, b) => HW[a].n - HW[b].n).map(L => "<p>" + highlight(HW[L].text, HW[L].clues) + "</p>").join("");
-      $("hwReveal").classList.remove("hidden");
-    } else {
-      $("hwReveal").classList.add("hidden");
-      $("hwResult").innerHTML = '<div class="result ng">4つ中 ' + ok + ' つ正解。赤い段落をもう一度読もう。💡 投書は「①社説への意見 → ②③理由 → ④自分の提案」の流れが多いよ。</div>';
-    }
-  });
-  $("hwReset").addEventListener("click", () => {
-    st.hw = {}; save(); renderHW(); $("hwResult").innerHTML = ""; $("hwReveal").classList.add("hidden");
-  });
+  function renderSeq() {
+    const done = seq.length === PARAS.length;
+    $("seq").innerHTML = seq.map((i, k) =>
+      '<li class="' + (done ? (i === k ? "right" : "wrong") : "") + '"><span class="n">' + (k + 1) + '</span>' + esc(opening(PARAS[i].text)) +
+      (done && i !== k ? '<span class="muted" style="margin-left:auto;font-family:sans-serif">正しくは ' + (i + 1) + ' 番目</span>' : "") + '</li>'
+    ).join("");
+    if (done) {
+      const ok = seq.filter((i, k) => i === k).length;
+      $("seqResult").innerHTML = ok === 6
+        ? '<div class="result ok">🎉 正解！ 6つすべて正しい順番です。</div>'
+        : '<div class="result ng">6つ中 ' + ok + ' つが正しい位置です。</div>';
+    } else $("seqResult").innerHTML = "";
+    renderChooser();
+  }
+  $("seqUndo").addEventListener("click", () => { seq.pop(); renderSeq(); });
+  $("seqClear").addEventListener("click", () => { seq = []; renderSeq(); });
+  renderSeq();
+
+  $("keyTable").innerHTML = '<tr><th>順</th><th>書き出し</th><th>つながりの手がかり</th><th>要約例</th></tr>' +
+    PARAS.map((p, i) => '<tr><td><b>' + (i + 1) + '</b></td><td class="para">' + esc(opening(p.text)) + '</td><td>' + esc(p.note) + '</td><td class="para">' + esc(p.model) + '</td></tr>').join("");
+
+  function renderFull() {
+    const on = $("showClues").checked;
+    $("fullText").innerHTML = PARAS.map((p, i) => '<p><span class="num">' + (i + 1) + '</span>' + highlight(p.text, p.clues, on) + '</p>').join("");
+  }
+  $("showClues").addEventListener("change", renderFull);
+  renderFull();
+
+  // ============ HOMEWORK ============
+  $("hwTable").innerHTML = '<tr><th>段落番号</th><th>書き出し</th><th>解説</th></tr>' +
+    HW.map((p, i) => '<tr><td><b>' + (i + 1) + '</b></td><td class="para">' + esc(opening(p.text)) + '</td><td>' + esc(p.note) + '</td></tr>').join("");
+  function renderHW() {
+    const on = $("hwClues").checked;
+    $("hwFull").innerHTML = HW.map((p, i) => '<p><span class="num">' + (i + 1) + '</span>' + highlight(p.text, p.clues, on) + '</p>').join("");
+  }
+  $("hwClues").addEventListener("change", renderHW);
   renderHW();
 })();
 </script>
