@@ -673,6 +673,25 @@
     if (worker) { worker.terminate(); worker = null; modelReady = null; }
   });
 
+  // ===== 音の再生（スマホ対策） =====
+  // iPhone / iPad などでは、タップした瞬間に一度再生しておかないと、
+  // 音声ができあがった後に自動で再生できない。タップ時に無音を流して再生を許可してもらう。
+  const SILENT_URL = URL.createObjectURL(encodeWav(new Float32Array(240), SAMPLE_RATE));
+  function unlockAudio(el) {
+    try {
+      if (!el.src) el.src = SILENT_URL;
+      el.muted = true;
+      const p = el.play();
+      const done = () => { el.pause(); el.muted = false; };
+      if (p && p.then) p.then(done, () => { el.muted = false; }); else done();
+    } catch (e) { el.muted = false; }
+  }
+  function playAudio(el, onBlocked) {
+    el.muted = false;
+    const p = el.play();
+    if (p && p.catch) p.catch(err => { console.warn(err); onBlocked && onBlocked(err); });
+  }
+
   // ===== 状態表示 =====
   function setStatus(msg, kind) {
     $status.textContent = msg;
@@ -793,7 +812,8 @@
       }
     };
     worker.onerror = (e) => {
-      const err = new Error(e.message || '音声エンジンを起動できませんでした');
+      if (e.preventDefault) e.preventDefault();
+      const err = new Error(e.message || 'worker: 音声エンジンを起動できませんでした');
       pending.forEach(p => p.reject(err));
       pending.clear();
     };
@@ -820,8 +840,9 @@
     const m = String(err && err.message || err);
     if (/fetch|network|Failed to load|import/i.test(m)) return 'インターネットから音声モデルを読み込めませんでした。接続を確認して、もう一度お試しください。';
     if (/webgpu|adapter|gpu/i.test(m)) return 'この端末では高速モードが使えません。「くわしい設定」で標準モードに戻してください。';
-    if (/memory|allocation/i.test(m)) return 'メモリが足りませんでした。ほかのタブを閉じるか、文章を短くしてお試しください。';
-    return 'エラーが発生しました：' + m;
+    if (/memory|allocation|RangeError/i.test(m)) return 'メモリが足りませんでした。ほかのアプリやタブを閉じるか、文章を短くしてお試しください。スマホでうまくいかないときは「ブラウザ音声」をお使いください。';
+    if (/worker/i.test(m)) return 'この端末・ブラウザではAI音声を動かせませんでした。最新の Chrome / Safari でお試しいただくか、「ブラウザ音声」をお使いください。';
+    return 'エラーが発生しました：' + m + '（うまくいかないときは「ブラウザ音声」をお試しください）';
   }
 
   async function generateAI() {
@@ -858,7 +879,9 @@
       state.sentences = list;
       highlight(-1);
       remix();
-      setStatus(`できあがりました（${list.length} 文・${formatTime(state.mixed.length / SAMPLE_RATE)}）。再生や保存ができます。`, 'ok');
+      setStatus(`できあがりました（${list.length} 文・${formatTime(state.mixed.length / SAMPLE_RATE)}）。再生しています。保存もできます。`, 'ok');
+      $player.currentTime = 0;
+      playAudio($player, () => setStatus('できあがりました。下のプレーヤーの ▶ を押すと再生できます。', 'ok'));
     } catch (err) {
       highlight(-1);
       if (err.message === '__cancel__') setStatus('停止しました。');
@@ -867,6 +890,7 @@
     } finally {
       state.busy = false;
       updateGenBtn();
+      if (state.audioUrl && $player.src !== state.audioUrl) $player.src = state.audioUrl;
     }
   }
 
@@ -911,7 +935,7 @@
     if (engine() === 'ai') {
       if (!state.mixed || isStale()) return;
       const seg = state.segments.find(s => s.index === i);
-      if (seg) { $player.currentTime = seg.start; $player.play(); }
+      if (seg) { $player.currentTime = seg.start; playAudio($player); }
     } else {
       speakBrowser(i);
     }
@@ -919,11 +943,13 @@
 
   // 試聴
   const sampleCache = new Map();
-  let sampleAudio = null;
+  const sampleAudio = new Audio();
+  let sampleUrl = null;
   async function trySample(voice) {
     if (state.busy) return;
     selectVoice(voice);
     stopAll();
+    unlockAudio(sampleAudio);   // タップした瞬間に再生を許可してもらう
     try {
       const speed = Number($speed.value);
       const k = voice + '|' + speed;
@@ -938,8 +964,10 @@
       }
       const v = VOICES.find(x => x.id === voice);
       setStatus(`試聴中：${v.name}（${REGION_NAME[v.region]}・${GENDER_LABEL[v.gender]}）`);
-      sampleAudio = new Audio(URL.createObjectURL(encodeWav(clip, SAMPLE_RATE)));
-      sampleAudio.play();
+      if (sampleUrl) URL.revokeObjectURL(sampleUrl);
+      sampleUrl = URL.createObjectURL(encodeWav(clip, SAMPLE_RATE));
+      sampleAudio.src = sampleUrl;
+      playAudio(sampleAudio, () => setStatus('試聴の音声を再生できませんでした。もう一度 ▶ を押してください。', 'err'));
       setProgress(0);
     } catch (err) {
       console.error(err);
@@ -993,14 +1021,14 @@
     if (synth && (state.speaking || synth.speaking)) { speakToken++; synth.cancel(); }
     if (state.speaking) { state.speaking = false; highlight(-1); }
     if (!$player.paused) $player.pause();
-    if (sampleAudio) { sampleAudio.pause(); sampleAudio = null; }
+    if (!sampleAudio.paused) sampleAudio.pause();
     updateGenBtn();
   }
 
   $genBtn.addEventListener('click', () => {
     if (state.busy) { state.cancel = true; setStatus('停止しています…'); return; }
     if (state.speaking) { stopAll(); setStatus('停止しました。'); return; }
-    if (engine() === 'ai') generateAI();
+    if (engine() === 'ai') { unlockAudio($player); generateAI(); }
     else speakBrowser(0);
   });
 
