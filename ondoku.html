@@ -121,6 +121,22 @@
   .hidden { display: none !important; }
   .help ol { margin: 6px 0 0; padding-left: 1.3em; font-size: .85rem; }
   .help li { margin: 2px 0; }
+  .src-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .src-btns .btn { padding: 10px 12px; font-size: .9rem; }
+  .ocr-box { border: 1px dashed var(--line); border-radius: 12px; padding: 10px; margin-bottom: 10px; background: var(--bg); }
+  .crop {
+    position: relative; display: block; margin: 0 auto; width: fit-content; max-width: 100%; overflow: hidden; border-radius: 8px; touch-action: none;
+    user-select: none; -webkit-user-select: none; cursor: crosshair; line-height: 0;
+  }
+  .crop img { max-width: 100%; max-height: 60vh; display: block; border-radius: 8px; pointer-events: none; }
+  .crop .sel {
+    position: absolute; border: 2px solid var(--primary); background: rgba(37, 99, 235, .15);
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, .35); border-radius: 4px; pointer-events: none;
+  }
+  .ocr-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .ocr-actions .btn { padding: 10px 12px; font-size: .9rem; }
+  .check { display: flex; gap: 6px; align-items: center; font-size: .85rem; margin-top: 8px; cursor: pointer; }
+  .check input { accent-color: var(--primary); width: 18px; height: 18px; }
   footer { text-align: center; color: var(--sub); font-size: .72rem; margin-top: 24px; }
 </style>
 </head>
@@ -134,16 +150,34 @@
   <div class="card help">
     <h2>使い方</h2>
     <ol>
-      <li>英文を貼り付けます。</li>
+      <li>英文を貼り付けます。教科書やプリントは「📷 写真で読み取る」で撮影すると、英文を自動で読み取れます。</li>
       <li>「AI音声」か「ブラウザ音声」を選び、声を選びます（▶で試聴できます）。</li>
       <li>「音声を作る」を押すと、1文ずつ音声が作られます。</li>
       <li>できあがったら再生したり、MP3・WAVで保存したりできます。</li>
     </ol>
+    <div class="note info">写真の読み取りは、初回だけ文字認識データ（約7MB）を読み込みます。読み取った英文はまちがっていることもあるので、音声を作る前に見直してください。</div>
     <div class="note info">AI音声は初回だけ音声モデル（約90MB）を読み込むので、1〜2分かかります。Wi-Fiにつないでから使ってください。2回目からはすぐに使えます。</div>
   </div>
 
   <div class="card">
     <h2><span class="step">1</span>英文を入力</h2>
+    <div class="src-btns">
+      <button class="btn sub" id="camBtn">📷 写真で読み取る</button>
+      <button class="btn sub" id="imgBtn">🖼️ 画像を選ぶ</button>
+    </div>
+    <input type="file" id="camInput" accept="image/*" capture="environment" class="hidden">
+    <input type="file" id="imgInput" accept="image/*" class="hidden">
+    <div class="ocr-box hidden" id="ocrBox">
+      <div class="muted" style="margin-bottom:8px">読み取りたい英文の部分を指でなぞって囲んでください（囲まなければ写真全体を読み取ります）。</div>
+      <div class="crop" id="crop"><img id="ocrImg" alt="読み取る写真"><div class="sel hidden" id="cropSel"></div></div>
+      <label class="check"><input type="checkbox" id="ocrAppend">今の英文の後ろに追加する（チェックなし＝置き換え）</label>
+      <div class="ocr-actions">
+        <button class="btn" id="ocrRun">🔍 読み取る</button>
+        <button class="btn sub" id="ocrCancel">やめる</button>
+      </div>
+      <div class="progress"><div id="ocrBar"></div></div>
+    </div>
+    <div class="status" id="ocrStatus"></div>
     <textarea id="text" placeholder="ここに英文を貼り付けてください。&#10;例: Life is like a box of chocolates. You never know what you're gonna get." spellcheck="false"></textarea>
     <div class="row between">
       <span class="muted" id="count">0 文字 / 0 文</span>
@@ -208,7 +242,7 @@
   </div>
 
   <footer>
-    AI音声：Kokoro-82M（Apache-2.0）をブラウザ内で動かしています。入力した文章が外部に送信されることはありません。
+    AI音声：Kokoro-82M（Apache-2.0）、文字認識：Tesseract.js（Apache-2.0）をブラウザ内で動かしています。入力した文章や写真が外部に送信されることはありません。
   </footer>
 </div>
 
@@ -218,6 +252,8 @@
 
   // ===== 設定 =====
   const KOKORO_URL = 'https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js';
+  const TESSERACT_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+  const OCR_MAX_SIDE = 2400;   // 大きすぎる写真は縮小してから読み取る（速さとメモリのため）
   const LAME_URL = 'https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/dist/lamejs.js';
   const MODEL_ID = 'onnx-community/Kokoro-82M-v1.0-ONNX';
   const SAMPLE_RATE = 24000;
@@ -340,6 +376,201 @@
   }
   $text.addEventListener('input', onTextChange);
   $('clearBtn').addEventListener('click', () => { $text.value = ''; onTextChange(); $text.focus(); });
+
+
+  // ===== 写真から英文を読み取る（Tesseract.js をブラウザ内で動かす） =====
+  const $ocrBox = $('ocrBox'), $ocrImg = $('ocrImg'), $crop = $('crop'), $cropSel = $('cropSel');
+  const $ocrRun = $('ocrRun'), $ocrBar = $('ocrBar'), $ocrStatus = $('ocrStatus'), $ocrAppend = $('ocrAppend');
+  const ocr = { url: null, sel: null, drag: null, busy: false, worker: null, loading: null };
+
+  function setOcrStatus(msg, kind) {
+    $ocrStatus.textContent = msg;
+    $ocrStatus.className = 'status' + (kind ? ' ' + kind : '');
+  }
+  function setOcrProgress(r) { $ocrBar.style.width = Math.max(0, Math.min(1, r)) * 100 + '%'; }
+
+  $('camBtn').addEventListener('click', () => $('camInput').click());
+  $('imgBtn').addEventListener('click', () => $('imgInput').click());
+  ['camInput', 'imgInput'].forEach(id => $(id).addEventListener('change', (e) => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (f) openOcrImage(f);
+  }));
+
+  function openOcrImage(file) {
+    if (ocr.busy) return;
+    if (!/^image\//.test(file.type)) { setOcrStatus('画像ファイルを選んでください。', 'err'); $ocrBox.classList.remove('hidden'); return; }
+    if (ocr.url) URL.revokeObjectURL(ocr.url);
+    ocr.url = URL.createObjectURL(file);
+    ocr.sel = null;
+    $cropSel.classList.add('hidden');
+    $ocrImg.src = ocr.url;
+    $ocrAppend.checked = false;
+    $ocrBox.classList.remove('hidden');
+    setOcrProgress(0);
+    setOcrStatus('');
+    $ocrImg.onload = () => $ocrBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $ocrImg.onerror = () => setOcrStatus('この画像は開けませんでした。JPEG や PNG の写真を選んでください。', 'err');
+  }
+  function closeOcr() {
+    $ocrBox.classList.add('hidden');
+    if (ocr.url) { URL.revokeObjectURL(ocr.url); ocr.url = null; }
+    $ocrImg.removeAttribute('src');
+    ocr.sel = null;
+  }
+  $('ocrCancel').addEventListener('click', () => { if (!ocr.busy) closeOcr(); });
+
+  // 指やマウスでなぞって範囲を選ぶ（座標は画像に対する 0〜1 の割合で持つ）
+  function relPoint(e) {
+    const r = $ocrImg.getBoundingClientRect();
+    return { x: Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), y: Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)) };
+  }
+  function drawSel() {
+    const s = ocr.sel;
+    if (!s) { $cropSel.classList.add('hidden'); return; }
+    const w = $ocrImg.clientWidth, h = $ocrImg.clientHeight;
+    Object.assign($cropSel.style, { left: s.x * w + 'px', top: s.y * h + 'px', width: s.w * w + 'px', height: s.h * h + 'px' });
+    $cropSel.classList.remove('hidden');
+  }
+  $crop.addEventListener('pointerdown', (e) => {
+    if (ocr.busy || !$ocrImg.naturalWidth) return;
+    e.preventDefault();
+    $crop.setPointerCapture(e.pointerId);
+    ocr.drag = relPoint(e);
+  });
+  $crop.addEventListener('pointermove', (e) => {
+    if (!ocr.drag) return;
+    const p = relPoint(e), a = ocr.drag;
+    ocr.sel = { x: Math.min(a.x, p.x), y: Math.min(a.y, p.y), w: Math.abs(p.x - a.x), h: Math.abs(p.y - a.y) };
+    drawSel();
+  });
+  const endDrag = () => {
+    if (!ocr.drag) return;
+    ocr.drag = null;
+    // 小さすぎる範囲はタップとみなして選択を解除する
+    if (ocr.sel && (ocr.sel.w < 0.03 || ocr.sel.h < 0.02)) ocr.sel = null;
+    drawSel();
+  };
+  $crop.addEventListener('pointerup', endDrag);
+  $crop.addEventListener('pointercancel', endDrag);
+  window.addEventListener('resize', drawSel);
+
+  // 選んだ範囲を切り出し、白黒にして読み取りやすくする
+  function prepareImage() {
+    const img = $ocrImg;
+    const s = ocr.sel || { x: 0, y: 0, w: 1, h: 1 };
+    const sx = Math.round(s.x * img.naturalWidth), sy = Math.round(s.y * img.naturalHeight);
+    const sw = Math.max(1, Math.round(s.w * img.naturalWidth)), sh = Math.max(1, Math.round(s.h * img.naturalHeight));
+    // 小さい切り抜きは拡大、大きい写真は縮小する
+    const scale = Math.min(OCR_MAX_SIDE / Math.max(sw, sh), Math.max(1, 1600 / Math.max(sw, sh)), 3);
+    const cw = Math.max(1, Math.round(sw * scale)), ch = Math.max(1, Math.round(sh * scale));
+    const c = document.createElement('canvas');
+    c.width = cw; c.height = ch;
+    const ctx = c.getContext('2d', { willReadFrequently: true });
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, cw, ch);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
+    const d = ctx.getImageData(0, 0, cw, ch), p = d.data;
+    for (let i = 0; i < p.length; i += 4) {
+      const g = 0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2];
+      p[i] = p[i + 1] = p[i + 2] = g;
+    }
+    ctx.putImageData(d, 0, 0);
+    return c;
+  }
+
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const el = document.createElement('script');
+      el.src = src;
+      el.onload = resolve;
+      el.onerror = () => { el.remove(); reject(new Error('Failed to load ' + src)); };
+      document.head.appendChild(el);
+    });
+  }
+  let ocrLogger = null;
+  function ensureOcr() {
+    if (ocr.worker) return Promise.resolve(ocr.worker);
+    if (ocr.loading) return ocr.loading;
+    ocr.loading = (async () => {
+      if (!window.Tesseract) await loadScript(TESSERACT_URL);
+      const w = await window.Tesseract.createWorker('eng', 1, { logger: (m) => ocrLogger && ocrLogger(m) });
+      await w.setParameters({ preserve_interword_spaces: '1' });
+      ocr.worker = w;
+      return w;
+    })().catch(err => { ocr.loading = null; throw err; })
+      .finally(() => { if (ocr.worker) ocr.loading = null; });
+    return ocr.loading;
+  }
+
+  // 読み取った文字をきれいにする：行末の改行をつなぎ、段落（空行）だけ残す
+  function cleanOcrText(raw) {
+    const lines = raw.replace(/\r/g, '')
+      .replace(/[“”„‟]/g, '"').replace(/[‘’‚‛`´]/g, "'").replace(/[—–]/g, ' - ').replace(/ﬁ/g, 'fi').replace(/ﬂ/g, 'fl')
+      .split('\n').map(l => l.replace(/[ \t]+/g, ' ').trim());
+    const paras = [];
+    let cur = '';
+    for (const l of lines) {
+      // 英字がほとんどない行（ページ番号・記号・ゴミ）は捨てる
+      const letters = (l.match(/[A-Za-z]/g) || []).length;
+      if (!l || letters < 2 || letters < l.replace(/\s/g, '').length * 0.4) {
+        if (cur) { paras.push(cur); cur = ''; }
+        continue;
+      }
+      if (!cur) cur = l;
+      else if (/[A-Za-z]-$/.test(cur) && /^[a-z]/.test(l)) cur = cur.slice(0, -1) + l;   // ハイフンで分かれた単語をつなぐ
+      else cur += ' ' + l;
+    }
+    if (cur) paras.push(cur);
+    return paras.map(p => p.replace(/\s+([,.;:!?])/g, '$1').replace(/(^|\s)\|(\s)/g, '$1I$2')).join('\n\n');
+  }
+
+  $ocrRun.addEventListener('click', async () => {
+    if (ocr.busy || !$ocrImg.naturalWidth) return;
+    ocr.busy = true;
+    $ocrRun.disabled = true; $('ocrCancel').disabled = true;
+    setOcrProgress(0);
+    ocrLogger = (m) => {
+      if (m.status === 'recognizing text') {
+        setOcrProgress(m.progress);
+        setOcrStatus(`英文を読み取っています… ${Math.round(m.progress * 100)}%`);
+      } else if (/load|initializ/i.test(m.status)) {
+        setOcrProgress(m.progress || 0);
+        setOcrStatus('文字認識の準備をしています…（初回は少し時間がかかります）');
+      }
+    };
+    try {
+      setOcrStatus('文字認識の準備をしています…（初回は少し時間がかかります）');
+      const canvas = prepareImage();
+      const w = await ensureOcr();
+      setOcrStatus('英文を読み取っています…');
+      const { data } = await w.recognize(canvas);
+      const text = cleanOcrText(data.text || '');
+      if (!text) {
+        setOcrStatus('英文が見つかりませんでした。明るい場所で、文字が大きくはっきり写るように撮り直してください。', 'err');
+        return;
+      }
+      const cur = $text.value.trim();
+      $text.value = $ocrAppend.checked && cur ? cur + '\n\n' + text : text;
+      onTextChange();
+      const n = splitSentences(text).length;
+      const low = data.confidence < 70;
+      closeOcr();
+      setOcrStatus(`写真から ${n} 文を読み取りました。` + (low ? '読み取りの自信が低いので、とくによく見直してください。' : 'まちがいがないか見直してから音声を作ってください。'), low ? 'err' : 'ok');
+      $text.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      console.error(err);
+      setOcrProgress(0);
+      setOcrStatus(/fetch|network|load/i.test(String(err && err.message || err))
+        ? '文字認識データを読み込めませんでした。インターネット接続を確認して、もう一度お試しください。'
+        : '読み取り中にエラーが発生しました：' + (err && err.message || err), 'err');
+    } finally {
+      ocr.busy = false;
+      ocrLogger = null;
+      $ocrRun.disabled = false; $('ocrCancel').disabled = false;
+    }
+  });
 
   // ===== 画面：声 =====
   function renderVoices() {
