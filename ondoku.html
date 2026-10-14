@@ -96,6 +96,7 @@
   .btn.sub { background: var(--card); color: var(--text); border: 1.5px solid var(--line); }
   .btn.ng { background: var(--ng); }
   .btn.wide { width: 100%; }
+  .btn.sm { padding: 6px 10px; font-size: .8rem; border-radius: 8px; }
   .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
   .progress { height: 8px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 10px; }
   .progress > div { height: 100%; width: 0; background: var(--primary); transition: width .2s; }
@@ -123,19 +124,29 @@
   .help li { margin: 2px 0; }
   .src-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
   .src-btns .btn { padding: 10px 12px; font-size: .9rem; }
-  .ocr-box { border: 1px dashed var(--line); border-radius: 12px; padding: 10px; margin-bottom: 10px; background: var(--bg); }
+  .ocr-box { border: 1px dashed var(--line); border-radius: 12px; padding: 12px; margin-bottom: 10px; background: var(--bg); }
+  .ocr-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .ocr-mode label {
+    border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 10px; cursor: pointer;
+    display: block; background: var(--card); font-size: .85rem;
+  }
+  .ocr-mode input { display: none; }
+  .ocr-mode label:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+  .ocr-mode b { display: block; font-size: .88rem; }
+  .ocr-mode span { font-size: .72rem; color: var(--sub); }
   .crop {
     position: relative; display: block; margin: 0 auto; width: fit-content; max-width: 100%; overflow: hidden; border-radius: 8px; touch-action: none;
     user-select: none; -webkit-user-select: none; cursor: crosshair; line-height: 0;
   }
-  .crop img { max-width: 100%; max-height: 60vh; display: block; border-radius: 8px; pointer-events: none; }
+  .crop img { max-width: 100%; max-height: 55vh; display: block; border-radius: 8px; pointer-events: none; }
   .crop .sel {
     position: absolute; border: 2px solid var(--primary); background: rgba(37, 99, 235, .15);
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, .35); border-radius: 4px; pointer-events: none;
   }
+  .ocr-tools { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
   .ocr-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
   .ocr-actions .btn { padding: 10px 12px; font-size: .9rem; }
-  .check { display: flex; gap: 6px; align-items: center; font-size: .85rem; margin-top: 8px; cursor: pointer; }
+  .check { display: flex; gap: 6px; align-items: center; font-size: .85rem; margin-top: 6px; cursor: pointer; }
   .check input { accent-color: var(--primary); width: 18px; height: 18px; }
   footer { text-align: center; color: var(--sub); font-size: .72rem; margin-top: 24px; }
 </style>
@@ -150,12 +161,12 @@
   <div class="card help">
     <h2>使い方</h2>
     <ol>
-      <li>英文を貼り付けます。教科書やプリントは「📷 写真で読み取る」で撮影すると、英文を自動で読み取れます。</li>
+      <li>英文を貼り付けます。生徒が書いたノートや教科書は「📷 写真で読み取る」で撮影すると、英文を自動で読み取れます。</li>
       <li>「AI音声」か「ブラウザ音声」を選び、声を選びます（▶で試聴できます）。</li>
       <li>「音声を作る」を押すと、1文ずつ音声が作られます。</li>
       <li>できあがったら再生したり、MP3・WAVで保存したりできます。</li>
     </ol>
-    <div class="note info">写真の読み取りは、初回だけ文字認識データ（約7MB）を読み込みます。読み取った英文はまちがっていることもあるので、音声を作る前に見直してください。</div>
+    <div class="note info">写真の読み取りは、手書きモード（初回約65MB）と活字モード（初回約7MB）から選べます。すべて端末内で処理され、写真が外部に送信されることはありません。</div>
     <div class="note info">AI音声は初回だけ音声モデル（約90MB）を読み込むので、1〜2分かかります。Wi-Fiにつないでから使ってください。2回目からはすぐに使えます。</div>
   </div>
 
@@ -167,16 +178,38 @@
     </div>
     <input type="file" id="camInput" accept="image/*" capture="environment" class="hidden">
     <input type="file" id="imgInput" accept="image/*" class="hidden">
+
     <div class="ocr-box hidden" id="ocrBox">
-      <div class="muted" style="margin-bottom:8px">読み取りたい英文の部分を指でなぞって囲んでください（囲まなければ写真全体を読み取ります）。</div>
+      <div class="ocr-mode">
+        <label>
+          <input type="radio" name="ocrType" value="handwriting" checked>
+          <b>✍️ 手書きノート（生徒の英作文）</b>
+          <span>手書き専用AI（TrOCR）で1行ずつ丁寧に読み取ります</span>
+        </label>
+        <label>
+          <input type="radio" name="ocrType" value="printed">
+          <b>📖 教科書・プリント（活字）</b>
+          <span>印刷された英文を素早く一括で読み取ります</span>
+        </label>
+      </div>
+
+      <div class="ocr-tools">
+        <span class="muted">読み取りたい英文の部分を指でなぞって囲んでください（囲まなければ全体）。</span>
+        <button type="button" class="btn sub sm" id="rotBtn">🔄 写真を90°回転</button>
+      </div>
+
       <div class="crop" id="crop"><img id="ocrImg" alt="読み取る写真"><div class="sel hidden" id="cropSel"></div></div>
+
+      <label class="check"><input type="checkbox" id="ocrCleanLine" checked>ノートの横線（罫線）や影を自動で消して読み取る</label>
       <label class="check"><input type="checkbox" id="ocrAppend">今の英文の後ろに追加する（チェックなし＝置き換え）</label>
+
       <div class="ocr-actions">
         <button class="btn" id="ocrRun">🔍 読み取る</button>
         <button class="btn sub" id="ocrCancel">やめる</button>
       </div>
       <div class="progress"><div id="ocrBar"></div></div>
     </div>
+
     <div class="status" id="ocrStatus"></div>
     <textarea id="text" placeholder="ここに英文を貼り付けてください。&#10;例: Life is like a box of chocolates. You never know what you're gonna get." spellcheck="false"></textarea>
     <div class="row between">
@@ -242,7 +275,7 @@
   </div>
 
   <footer>
-    AI音声：Kokoro-82M（Apache-2.0）、文字認識：Tesseract.js（Apache-2.0）をブラウザ内で動かしています。入力した文章や写真が外部に送信されることはありません。
+    AI音声：Kokoro-82M（Apache-2.0）、手書き文字認識：TrOCR（MIT / Transformers.js）、活字認識：Tesseract.js（Apache-2.0）をブラウザ内で動かしています。入力した文章や写真が外部に送信されることはありません。
   </footer>
 </div>
 
@@ -253,7 +286,9 @@
   // ===== 設定 =====
   const KOKORO_URL = 'https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js';
   const TESSERACT_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
-  const OCR_MAX_SIDE = 2400;   // 大きすぎる写真は縮小してから読み取る（速さとメモリのため）
+  const TRANSFORMERS_URL = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.3.3/dist/transformers.min.js';
+  const TROCR_MODEL = 'Xenova/trocr-small-handwritten';
+  const OCR_MAX_SIDE = 2200;   // 大きすぎる写真は縮小してから読み取る（速さとメモリのため）
   const LAME_URL = 'https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/dist/lamejs.js';
   const MODEL_ID = 'onnx-community/Kokoro-82M-v1.0-ONNX';
   const SAMPLE_RATE = 24000;
@@ -306,17 +341,16 @@
     voice: 'af_heart',
     busy: false,
     cancel: false,
-    // 生成結果（AI音声）
-    clips: null,        // Float32Array[]（1文ごと）
-    clipKey: '',        // 生成時の テキスト+声+速さ
-    segments: [],       // 再生時のハイライト用 {start, end, index}
+    clips: null,
+    clipKey: '',
+    segments: [],
     audioUrl: null,
-    mixed: null,        // 結合済み Float32Array
-    // ブラウザ音声の再生
+    mixed: null,
     speaking: false,
   };
 
   const engine = () => document.querySelector('input[name=engine]:checked').value;
+  const ocrType = () => document.querySelector('input[name=ocrType]:checked').value;
 
   // ===== 文の分割 =====
   const ABBR = /(?:\b(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|St|Mt|vs|etc|No|Vol|Fig|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec|approx|cf)|\b[A-Z]|\b(?:e\.g|i\.e|a\.m|p\.m|U\.S|U\.K))\.$/;
@@ -343,7 +377,6 @@
     }
     return result;
   }
-  // AI音声は1回に読める長さに上限があるので、長すぎる文は区切りの良い所で分ける
   function splitLong(s, limit = 280) {
     const out = [];
     while (s.length > limit) {
@@ -378,10 +411,13 @@
   $('clearBtn').addEventListener('click', () => { $text.value = ''; onTextChange(); $text.focus(); });
 
 
-  // ===== 写真から英文を読み取る（Tesseract.js をブラウザ内で動かす） =====
+  // =========================================================================
+  // ===== 写真から英文を読み取る（手書き専用AI TrOCR ＆ 活字用 Tesseract.js） =====
+  // =========================================================================
   const $ocrBox = $('ocrBox'), $ocrImg = $('ocrImg'), $crop = $('crop'), $cropSel = $('cropSel');
-  const $ocrRun = $('ocrRun'), $ocrBar = $('ocrBar'), $ocrStatus = $('ocrStatus'), $ocrAppend = $('ocrAppend');
-  const ocr = { url: null, sel: null, drag: null, busy: false, worker: null, loading: null };
+  const $ocrRun = $('ocrRun'), $ocrBar = $('ocrBar'), $ocrStatus = $('ocrStatus');
+  const $ocrAppend = $('ocrAppend'), $ocrCleanLine = $('ocrCleanLine');
+  const ocr = { url: null, sel: null, drag: null, busy: false, worker: null, loading: null, trocr: null, trocrLoading: null };
 
   function setOcrStatus(msg, kind) {
     $ocrStatus.textContent = msg;
@@ -420,7 +456,27 @@
   }
   $('ocrCancel').addEventListener('click', () => { if (!ocr.busy) closeOcr(); });
 
-  // 指やマウスでなぞって範囲を選ぶ（座標は画像に対する 0〜1 の割合で持つ）
+  // 写真を90度回転する（スマホ撮影で向きが横になったとき用）
+  $('rotBtn').addEventListener('click', () => {
+    if (ocr.busy || !$ocrImg.naturalWidth) return;
+    const c = document.createElement('canvas');
+    c.width = $ocrImg.naturalHeight;
+    c.height = $ocrImg.naturalWidth;
+    const ctx = c.getContext('2d');
+    ctx.translate(c.width / 2, c.height / 2);
+    ctx.rotate(Math.PI / 2);
+    ctx.drawImage($ocrImg, -$ocrImg.naturalWidth / 2, -$ocrImg.naturalHeight / 2);
+    c.toBlob((blob) => {
+      if (!blob) return;
+      if (ocr.url) URL.revokeObjectURL(ocr.url);
+      ocr.url = URL.createObjectURL(blob);
+      ocr.sel = null;
+      $cropSel.classList.add('hidden');
+      $ocrImg.src = ocr.url;
+    }, 'image/jpeg', 0.95);
+  });
+
+  // 指やマウスでなぞって範囲を選ぶ
   function relPoint(e) {
     const r = $ocrImg.getBoundingClientRect();
     return { x: Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), y: Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)) };
@@ -447,7 +503,6 @@
   const endDrag = () => {
     if (!ocr.drag) return;
     ocr.drag = null;
-    // 小さすぎる範囲はタップとみなして選択を解除する
     if (ocr.sel && (ocr.sel.w < 0.03 || ocr.sel.h < 0.02)) ocr.sel = null;
     drawSel();
   };
@@ -455,15 +510,15 @@
   $crop.addEventListener('pointercancel', endDrag);
   window.addEventListener('resize', drawSel);
 
-  // 選んだ範囲を切り出し、白黒にして読み取りやすくする
-  function prepareImage() {
+  // 選んだ範囲を切り出し、適応的二値化とノート罫線除去を行う
+  function prepareCroppedCanvas(cleanLines) {
     const img = $ocrImg;
     const s = ocr.sel || { x: 0, y: 0, w: 1, h: 1 };
     const sx = Math.round(s.x * img.naturalWidth), sy = Math.round(s.y * img.naturalHeight);
     const sw = Math.max(1, Math.round(s.w * img.naturalWidth)), sh = Math.max(1, Math.round(s.h * img.naturalHeight));
-    // 小さい切り抜きは拡大、大きい写真は縮小する
-    const scale = Math.min(OCR_MAX_SIDE / Math.max(sw, sh), Math.max(1, 1600 / Math.max(sw, sh)), 3);
+    const scale = Math.min(OCR_MAX_SIDE / Math.max(sw, sh), Math.max(1, 1600 / Math.max(sw, sh)), 2.5);
     const cw = Math.max(1, Math.round(sw * scale)), ch = Math.max(1, Math.round(sh * scale));
+
     const c = document.createElement('canvas');
     c.width = cw; c.height = ch;
     const ctx = c.getContext('2d', { willReadFrequently: true });
@@ -471,15 +526,239 @@
     ctx.fillRect(0, 0, cw, ch);
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, cw, ch);
-    const d = ctx.getImageData(0, 0, cw, ch), p = d.data;
-    for (let i = 0; i < p.length; i += 4) {
-      const g = 0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2];
-      p[i] = p[i + 1] = p[i + 2] = g;
+
+    if (!cleanLines) return c;
+
+    // 1. グレースケール化と積分画像（Integral Image）の作成（スマホの照明の影を除去するため）
+    const imgData = ctx.getImageData(0, 0, cw, ch);
+    const p = imgData.data;
+    const gray = new Uint8Array(cw * ch);
+    const integral = new Float64Array((cw + 1) * (ch + 1));
+
+    for (let y = 0; y < ch; y++) {
+      let rowSum = 0;
+      for (let x = 0; x < cw; x++) {
+        const idx = (y * cw + x) * 4;
+        const g = Math.round(0.299 * p[idx] + 0.587 * p[idx + 1] + 0.114 * p[idx + 2]);
+        gray[y * cw + x] = g;
+        rowSum += g;
+        integral[(y + 1) * (cw + 1) + (x + 1)] = integral[y * (cw + 1) + (x + 1)] + rowSum;
+      }
     }
-    ctx.putImageData(d, 0, 0);
+
+    // 2. 局所平均との比較によるソフト二値化（影を白く飛ばし、鉛筆やペンの筆跡を濃く残す）
+    const win = Math.max(16, Math.round(Math.min(cw, ch) / 28));
+    const bin = new Uint8Array(cw * ch); // 1 = 文字(黒), 0 = 背景(白)
+
+    for (let y = 0; y < ch; y++) {
+      const y1 = Math.max(0, y - win), y2 = Math.min(ch - 1, y + win);
+      for (let x = 0; x < cw; x++) {
+        const x1 = Math.max(0, x - win), x2 = Math.min(cw - 1, x + win);
+        const count = (x2 - x1 + 1) * (y2 - y1 + 1);
+        const sum = integral[(y2 + 1) * (cw + 1) + (x2 + 1)]
+                  - integral[y1 * (cw + 1) + (x2 + 1)]
+                  - integral[(y2 + 1) * (cw + 1) + x1]
+                  + integral[y1 * (cw + 1) + x1];
+        const mean = sum / count;
+        const g = gray[y * cw + x];
+        // 周囲の平均より一定以上暗いピクセルを「文字」と判定
+        if (g < mean - 13) {
+          bin[y * cw + x] = 1;
+        }
+      }
+    }
+
+    // 3. ノートの横罫線（細長い水平線）の除去
+    // 横方向に黒が極端に連続し、かつ上下の縦方向に筆跡が続いていないピクセル（＝罫線）を白に戻す
+    const horizSpan = Math.max(30, Math.round(cw * 0.12));
+    for (let y = 2; y < ch - 2; y++) {
+      let run = 0;
+      for (let x = 0; x < cw; x++) {
+        if (bin[y * cw + x]) {
+          run++;
+        } else {
+          if (run >= horizSpan) {
+            for (let k = x - run; k < x; k++) {
+              // 上下2ピクセルに文字の縦画が交差していなければ消去
+              const hasVert = bin[(y - 2) * cw + k] || bin[(y + 2) * cw + k];
+              if (!hasVert) bin[y * cw + k] = 0;
+            }
+          }
+          run = 0;
+        }
+      }
+      if (run >= horizSpan) {
+        for (let k = cw - run; k < cw; k++) {
+          const hasVert = bin[(y - 2) * cw + k] || bin[(y + 2) * cw + k];
+          if (!hasVert) bin[y * cw + k] = 0;
+        }
+      }
+    }
+
+    // 4. TrOCR・Tesseractの両方が読みやすい「自然なコントラスト画像」として書き戻す
+    for (let i = 0; i < cw * ch; i++) {
+      const idx = i * 4;
+      // 文字部分は元の濃淡を活かしつつ濃くし、背景は純白(255)にする
+      const v = bin[i] ? Math.max(0, Math.min(110, (gray[i] - 40))) : 255;
+      p[idx] = p[idx + 1] = p[idx + 2] = v;
+    }
+    ctx.putImageData(imgData, 0, 0);
     return c;
   }
 
+  // ===== 複数行のノート画像を「1行ずつのCanvas配列」に自動分割する（手書きTrOCR用） =====
+  function segmentIntoLines(canvas) {
+    const cw = canvas.width, ch = canvas.height;
+    const ctx = canvas.getContext('2d');
+    const data = ctx.getImageData(0, 0, cw, ch).data;
+
+    // 各行（Y座標）にどれだけ文字ピクセルがあるかを数える（水平射影ヒストグラム）
+    const rowInk = new Float32Array(ch);
+    const marginX = Math.round(cw * 0.02);
+    for (let y = 0; y < ch; y++) {
+      let count = 0;
+      for (let x = marginX; x < cw - marginX; x++) {
+        if (data[(y * cw + x) * 4] < 180) count++;
+      }
+      rowInk[y] = count;
+    }
+
+    // ノイズを均すために移動平均をとる
+    const smooth = new Float32Array(ch);
+    const radius = Math.max(2, Math.round(ch * 0.004));
+    for (let y = 0; y < ch; y++) {
+      let s = 0, c = 0;
+      for (let dy = -radius; dy <= radius; dy++) {
+        if (y + dy >= 0 && y + dy < ch) { s += rowInk[y + dy]; c++; }
+      }
+      smooth[y] = s / c;
+    }
+
+    // インクがある行の閾値
+    let maxInk = 0;
+    for (let y = 0; y < ch; y++) if (smooth[y] > maxInk) maxInk = smooth[y];
+    if (maxInk < 3) return []; // 何も書かれていない
+    const threshold = Math.max(2.5, maxInk * 0.045);
+
+    const rawBands = [];
+    let inLine = false, startY = 0;
+    for (let y = 0; y < ch; y++) {
+      if (!inLine && smooth[y] >= threshold) {
+        inLine = true;
+        startY = y;
+      } else if (inLine && smooth[y] < threshold) {
+        inLine = false;
+        rawBands.push({ top: startY, bottom: y });
+      }
+    }
+    if (inLine) rawBands.push({ top: startY, bottom: ch - 1 });
+
+    // 近すぎる帯（iの点やアポストロフィが分離したもの）を結合し、極小のゴミを除外する
+    const minLineHeight = Math.max(12, Math.round(ch * 0.015));
+    const mergedBands = [];
+    for (const b of rawBands) {
+      const prev = mergedBands[mergedBands.length - 1];
+      if (prev && (b.top - prev.bottom) < minLineHeight * 0.45) {
+        prev.bottom = b.bottom;
+      } else {
+        mergedBands.push({ ...b });
+      }
+    }
+
+    const validBands = mergedBands.filter(b => (b.bottom - b.top) >= minLineHeight);
+    // もし1行しか無いか、分割できなかった場合は画像全体を1行として扱う
+    if (!validBands.length) return [canvas];
+
+    // 1行が高すぎる場合（複数行がくっついている場合）は谷間で再分割する
+    const avgHeight = validBands.reduce((acc, b) => acc + (b.bottom - b.top), 0) / validBands.length;
+    const finalBands = [];
+    for (const b of validBands) {
+      const h = b.bottom - b.top;
+      if (validBands.length >= 2 && h > avgHeight * 1.85) {
+        const numSplits = Math.round(h / avgHeight);
+        const step = h / numSplits;
+        for (let k = 0; k < numSplits; k++) {
+          finalBands.push({
+            top: Math.round(b.top + k * step),
+            bottom: Math.round(b.top + (k + 1) * step)
+          });
+        }
+      } else {
+        finalBands.push(b);
+      }
+    }
+
+    // 各行の左右の余白もトリミングして、余白付きの行Canvasを作る
+    const lineCanvases = [];
+    for (const b of finalBands) {
+      const padY = Math.max(6, Math.round((b.bottom - b.top) * 0.22));
+      const y1 = Math.max(0, b.top - padY);
+      const y2 = Math.min(ch, b.bottom + padY);
+      const lh = y2 - y1;
+
+      // 左右の文字開始・終了位置を探す
+      let minX = cw, maxX = 0, inkPixels = 0;
+      for (let y = b.top; y < b.bottom; y++) {
+        for (let x = 0; x < cw; x++) {
+          if (data[(y * cw + x) * 4] < 160) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            inkPixels++;
+          }
+        }
+      }
+      if (inkPixels < 25 || maxX <= minX + 10) continue; // 文字数がほぼ無い行はスキップ
+
+      const padX = Math.max(12, Math.round(lh * 0.4));
+      const x1 = Math.max(0, minX - padX);
+      const x2 = Math.min(cw, maxX + padX);
+      const lw = x2 - x1;
+
+      const lc = document.createElement('canvas');
+      // TrOCRが最も得意とする高さ（約64〜96px）に正規化しつつ余白を設ける
+      const targetH = 80;
+      const scale = targetH / lh;
+      lc.width = Math.max(64, Math.round(lw * scale) + 24);
+      lc.height = targetH + 16;
+      const lctx = lc.getContext('2d');
+      lctx.fillStyle = '#ffffff';
+      lctx.fillRect(0, 0, lc.width, lc.height);
+      lctx.imageSmoothingQuality = 'high';
+      lctx.drawImage(canvas, x1, y1, lw, lh, 12, 8, Math.round(lw * scale), targetH);
+      lineCanvases.push(lc);
+    }
+
+    return lineCanvases.length ? lineCanvases : [canvas];
+  }
+
+  // ===== 手書き認識モデル（TrOCR / Transformers.js）の読み込み =====
+  let trocrProgressCb = null;
+  function ensureTrOcr() {
+    if (ocr.trocr) return Promise.resolve(ocr.trocr);
+    if (ocr.trocrLoading) return ocr.trocrLoading;
+    ocr.trocrLoading = (async () => {
+      const { pipeline, env } = await import(TRANSFORMERS_URL);
+      env.allowLocalModels = false;
+      const files = {};
+      const recognizer = await pipeline('image-to-text', TROCR_MODEL, {
+        dtype: 'q8',
+        progress_callback: (p) => {
+          if (p.status === 'progress' && p.total && trocrProgressCb) {
+            files[p.file] = [p.loaded, p.total];
+            let l = 0, t = 0;
+            for (const k in files) { l += files[k][0]; t += files[k][1]; }
+            trocrProgressCb(l / t, l, t);
+          }
+        }
+      });
+      ocr.trocr = recognizer;
+      return recognizer;
+    })().catch(err => { ocr.trocrLoading = null; throw err; })
+      .finally(() => { if (ocr.trocr) ocr.trocrLoading = null; });
+    return ocr.trocrLoading;
+  }
+
+  // ===== 活字認識モデル（Tesseract.js）の読み込み =====
   function loadScript(src) {
     return new Promise((resolve, reject) => {
       const el = document.createElement('script');
@@ -490,13 +769,17 @@
     });
   }
   let ocrLogger = null;
-  function ensureOcr() {
+  function ensureTesseract() {
     if (ocr.worker) return Promise.resolve(ocr.worker);
     if (ocr.loading) return ocr.loading;
     ocr.loading = (async () => {
       if (!window.Tesseract) await loadScript(TESSERACT_URL);
       const w = await window.Tesseract.createWorker('eng', 1, { logger: (m) => ocrLogger && ocrLogger(m) });
-      await w.setParameters({ preserve_interword_spaces: '1' });
+      await w.setParameters({
+        preserve_interword_spaces: '1',
+        tessedit_pageseg_mode: '6',
+        tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,!?'\"-;() \n"
+      });
       ocr.worker = w;
       return w;
     })().catch(err => { ocr.loading = null; throw err; })
@@ -504,71 +787,111 @@
     return ocr.loading;
   }
 
-  // 読み取った文字をきれいにする：行末の改行をつなぎ、段落（空行）だけ残す
+  // 読み取った文字をきれいにする：行末の改行をつなぎ、不要なゴミ記号を除去する
   function cleanOcrText(raw) {
     const lines = raw.replace(/\r/g, '')
       .replace(/[“”„‟]/g, '"').replace(/[‘’‚‛`´]/g, "'").replace(/[—–]/g, ' - ').replace(/ﬁ/g, 'fi').replace(/ﬂ/g, 'fl')
-      .split('\n').map(l => l.replace(/[ \t]+/g, ' ').trim());
+      .split('\n').map(l => l.replace(/[ \t]+/g, ' ').replace(/^[#_~|=+*-]+\s*/, '').trim());
     const paras = [];
     let cur = '';
     for (const l of lines) {
-      // 英字がほとんどない行（ページ番号・記号・ゴミ）は捨てる
       const letters = (l.match(/[A-Za-z]/g) || []).length;
       if (!l || letters < 2 || letters < l.replace(/\s/g, '').length * 0.4) {
         if (cur) { paras.push(cur); cur = ''; }
         continue;
       }
       if (!cur) cur = l;
-      else if (/[A-Za-z]-$/.test(cur) && /^[a-z]/.test(l)) cur = cur.slice(0, -1) + l;   // ハイフンで分かれた単語をつなぐ
+      else if (/[A-Za-z]-$/.test(cur) && /^[a-z]/.test(l)) cur = cur.slice(0, -1) + l;
       else cur += ' ' + l;
     }
     if (cur) paras.push(cur);
-    return paras.map(p => p.replace(/\s+([,.;:!?])/g, '$1').replace(/(^|\s)\|(\s)/g, '$1I$2')).join('\n\n');
+    return paras.map(p => p.replace(/\s+([,.;:!?])/g, '$1').replace(/([,.;:!?])([A-Za-z])/g, '$1 $2').replace(/(^|\s)[|1](\s)/g, '$1I$2')).join('\n\n');
   }
 
+  // 「🔍 読み取る」ボタン実行処理
   $ocrRun.addEventListener('click', async () => {
     if (ocr.busy || !$ocrImg.naturalWidth) return;
     ocr.busy = true;
-    $ocrRun.disabled = true; $('ocrCancel').disabled = true;
+    $ocrRun.disabled = true; $('ocrCancel').disabled = true; $('rotBtn').disabled = true;
     setOcrProgress(0);
-    ocrLogger = (m) => {
-      if (m.status === 'recognizing text') {
-        setOcrProgress(m.progress);
-        setOcrStatus(`英文を読み取っています… ${Math.round(m.progress * 100)}%`);
-      } else if (/load|initializ/i.test(m.status)) {
-        setOcrProgress(m.progress || 0);
-        setOcrStatus('文字認識の準備をしています…（初回は少し時間がかかります）');
-      }
-    };
+
     try {
-      setOcrStatus('文字認識の準備をしています…（初回は少し時間がかかります）');
-      const canvas = prepareImage();
-      const w = await ensureOcr();
-      setOcrStatus('英文を読み取っています…');
-      const { data } = await w.recognize(canvas);
-      const text = cleanOcrText(data.text || '');
-      if (!text) {
-        setOcrStatus('英文が見つかりませんでした。明るい場所で、文字が大きくはっきり写るように撮り直してください。', 'err');
+      const mode = ocrType();
+      const canvas = prepareCroppedCanvas($ocrCleanLine.checked);
+      let finalText = '';
+      let lowConfidence = false;
+
+      if (mode === 'handwriting') {
+        // 【手書きノートモード：TrOCRで行ごとに高精度認識】
+        trocrProgressCb = (ratio, loaded, total) => {
+          setOcrProgress(ratio * 0.5);
+          setOcrStatus(`手書き認識AIデータを準備中… ${(loaded / 1048576).toFixed(0)} / ${(total / 1048576).toFixed(0)} MB（初回のみ）`);
+        };
+        if (!ocr.trocr) setOcrStatus('手書き認識AIデータを準備しています…（初回は30秒〜1分ほどかかります）');
+        const recognizer = await ensureTrOcr();
+
+        setOcrStatus('ノートの行を自動検出しています…');
+        const lineCanvases = segmentIntoLines(canvas);
+        const recognizedLines = [];
+
+        for (let i = 0; i < lineCanvases.length; i++) {
+          setOcrProgress(0.5 + ((i + 0.5) / lineCanvases.length) * 0.5);
+          setOcrStatus(`手書きの英文を読み取っています… ${i + 1} / ${lineCanvases.length} 行目`);
+          // UI描画を更新させるためわずかに待機
+          await new Promise(r => setTimeout(r, 20));
+          const dataUrl = lineCanvases[i].toDataURL('image/jpeg', 0.92);
+          const out = await recognizer(dataUrl, { max_new_tokens: 96 });
+          const lineText = (out && out[0] && out[0].generated_text || '').trim();
+          if (lineText && /[A-Za-z]{2,}/.test(lineText)) {
+            recognizedLines.push(lineText);
+          }
+        }
+        finalText = cleanOcrText(recognizedLines.join('\n'));
+      } else {
+        // 【活字モード：Tesseract.js】
+        ocrLogger = (m) => {
+          if (m.status === 'recognizing text') {
+            setOcrProgress(m.progress);
+            setOcrStatus(`英文を読み取っています… ${Math.round(m.progress * 100)}%`);
+          } else if (/load|initializ/i.test(m.status)) {
+            setOcrProgress(m.progress || 0);
+            setOcrStatus('文字認識の準備をしています…（初回は少し時間がかかります）');
+          }
+        };
+        setOcrStatus('文字認識の準備をしています…');
+        const w = await ensureTesseract();
+        setOcrStatus('英文を読み取っています…');
+        const { data } = await w.recognize(canvas);
+        finalText = cleanOcrText(data.text || '');
+        lowConfidence = data.confidence < 70;
+      }
+
+      if (!finalText) {
+        setOcrStatus('英文が見つかりませんでした。文字の部分を指でなぞって囲むか、写真の向き（🔄 90°回転）を確認してもう一度お試しください。', 'err');
         return;
       }
+
       const cur = $text.value.trim();
-      $text.value = $ocrAppend.checked && cur ? cur + '\n\n' + text : text;
+      $text.value =$ocrAppend.checked && cur ? cur + '\n\n' + finalText : finalText;
       onTextChange();
-      const n = splitSentences(text).length;
-      const low = data.confidence < 70;
+      const n = splitSentences(finalText).length;
       closeOcr();
-      setOcrStatus(`写真から ${n} 文を読み取りました。` + (low ? '読み取りの自信が低いので、とくによく見直してください。' : 'まちがいがないか見直してから音声を作ってください。'), low ? 'err' : 'ok');
+      setOcrStatus(
+        `写真から ${n} 文を読み取りました。` + (lowConfidence ? '読み取りの自信が低い箇所があるため、よく見直してください。' : 'スペルや句読点にまちがいがないか見直してから音声を作ってください。'),
+        lowConfidence ? 'err' : 'ok'
+      );
       $text.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (err) {
       console.error(err);
       setOcrProgress(0);
-      setOcrStatus(/fetch|network|load/i.test(String(err && err.message || err))
+      setOcrStatus(/fetch|network|load|import/i.test(String(err && err.message || err))
         ? '文字認識データを読み込めませんでした。インターネット接続を確認して、もう一度お試しください。'
         : '読み取り中にエラーが発生しました：' + (err && err.message || err), 'err');
     } finally {
       ocr.busy = false;
       ocrLogger = null;
-      $ocrRun.disabled = false; $('ocrCancel').disabled = false;
+      trocrProgressCb = null;
+      $ocrRun.disabled = false; $('ocrCancel').disabled = false; $('rotBtn').disabled = false;
     }
   });
 
@@ -646,10 +969,8 @@
   function onEngineChange() {
     const ai = engine() === 'ai';
     $aiVoices.classList.toggle('hidden', !ai);
-    $('advanced').classList.toggle('hidden', !ai);
-    $browserVoices.classList.toggle('hidden', ai);
-    $dlBox.classList.toggle('hidden', !ai);
-    $player.classList.toggle('hidden', !ai || !state.audioUrl);
+    $('advanced').classList.toggle('hidden', !ai);$browserVoices.classList.toggle('hidden', ai);
+    $dlBox.classList.toggle('hidden', !ai);$player.classList.toggle('hidden', !ai || !state.audioUrl);
     stopAll();
     renderSentenceList(splitSentences($text.value));
     setStatus(ai ? (state.mixed && !isStale() ? '音声ができています。' : '準備ができています。') : 'ブラウザ音声はすぐに再生できます。');
@@ -662,20 +983,16 @@
   function onSlider() {
     $('speedVal').textContent = Number($speed.value).toFixed(1) + ' 倍';
     $('pauseVal').textContent = Number($pause.value).toFixed(1) + ' 秒';
-    $('repeatVal').textContent = $repeat.value + ' 回';
+    $('repeatVal').textContent =$repeat.value + ' 回';
   }
   $speed.addEventListener('input', () => { onSlider(); markStale(); savePrefs(); });
-  // ポーズとくり返しは作り直さずに、つなぎ直すだけでよい
-  [$pause, $repeat].forEach(el => el.addEventListener('input', onSlider));
-  [$pause, $repeat].forEach(el => el.addEventListener('change', () => { savePrefs(); if (state.clips && !isStale()) remix(); }));
-  $device.addEventListener('change', () => {
+  [$pause,$repeat].forEach(el => el.addEventListener('input', onSlider));
+  [$pause, $repeat].forEach(el => el.addEventListener('change', () => { savePrefs(); if (state.clips && !isStale()) remix(); }));$device.addEventListener('change', () => {
     savePrefs();
     if (worker) { worker.terminate(); worker = null; modelReady = null; }
   });
 
   // ===== 音の再生（スマホ対策） =====
-  // iPhone / iPad などでは、タップした瞬間に一度再生しておかないと、
-  // 音声ができあがった後に自動で再生できない。タップ時に無音を流して再生を許可してもらう。
   const SILENT_URL = URL.createObjectURL(encodeWav(new Float32Array(240), SAMPLE_RATE));
   function unlockAudio(el) {
     try {
@@ -703,7 +1020,7 @@
   function markStale() {
     if (state.busy) return;
     if (engine() === 'ai' && state.mixed && isStale()) {
-      $mp3Btn.disabled = $wavBtn.disabled = true;
+      $mp3Btn.disabled =$wavBtn.disabled = true;
       setStatus('設定や英文が変わりました。「音声を作る」を押して作り直してください。');
     }
     updateGenBtn();
@@ -714,8 +1031,7 @@
       $genBtn.classList.add('ng');
       return;
     }
-    $genBtn.classList.remove('ng');
-    $genBtn.textContent = engine() === 'ai' ? '▶ 音声を作る' : '▶ 読み上げる';
+    $genBtn.classList.remove('ng');$genBtn.textContent = engine() === 'ai' ? '▶ 音声を作る' : '▶ 読み上げる';
   }
 
   // ===== 文リスト（ハイライト用） =====
@@ -784,7 +1100,7 @@
     };
   `;
   let worker = null;
-  let modelReady = null;   // Promise
+  let modelReady = null;
   let reqId = 0;
   const pending = new Map();
 
@@ -854,7 +1170,7 @@
     stopAll();
     state.busy = true; state.cancel = false;
     updateGenBtn();
-    $mp3Btn.disabled = $wavBtn.disabled = true;
+    $mp3Btn.disabled =$wavBtn.disabled = true;
     renderSentenceList(list);
     setProgress(0);
     const key = currentKey();
@@ -890,11 +1206,10 @@
     } finally {
       state.busy = false;
       updateGenBtn();
-      if (state.audioUrl && $player.src !== state.audioUrl) $player.src = state.audioUrl;
+      if (state.audioUrl && $player.src !== state.audioUrl)$player.src = state.audioUrl;
     }
   }
 
-  // 1文ごとの音声を、ポーズとくり返しを入れて1本につなぐ
   function remix() {
     const pauseLen = Math.round(Number($pause.value) * SAMPLE_RATE);
     const repeat = Number($repeat.value);
@@ -917,7 +1232,7 @@
     state.audioUrl = URL.createObjectURL(encodeWav(out, SAMPLE_RATE));
     $player.src = state.audioUrl;
     $player.classList.remove('hidden');
-    $mp3Btn.disabled = $wavBtn.disabled = false;
+    $mp3Btn.disabled =$wavBtn.disabled = false;
     if (state.clips && !state.busy && !isStale()) {
       setStatus(`できあがりました（${state.clips.length} 文・${formatTime(out.length / SAMPLE_RATE)}）。再生や保存ができます。`, 'ok');
     }
@@ -949,7 +1264,7 @@
     if (state.busy) return;
     selectVoice(voice);
     stopAll();
-    unlockAudio(sampleAudio);   // タップした瞬間に再生を許可してもらう
+    unlockAudio(sampleAudio);
     try {
       const speed = Number($speed.value);
       const k = voice + '|' + speed;
@@ -1020,7 +1335,7 @@
   function stopAll() {
     if (synth && (state.speaking || synth.speaking)) { speakToken++; synth.cancel(); }
     if (state.speaking) { state.speaking = false; highlight(-1); }
-    if (!$player.paused) $player.pause();
+    if (!$player.paused)$player.pause();
     if (!sampleAudio.paused) sampleAudio.pause();
     updateGenBtn();
   }
@@ -1084,11 +1399,7 @@
     a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 10000);
   }
-  $wavBtn.addEventListener('click', () => {
-    if (!state.mixed) return;
-    download(encodeWav(state.mixed, SAMPLE_RATE), fileBase() + '.wav');
-  });
-  $mp3Btn.addEventListener('click', async () => {
+  $wavBtn.addEventListener('click', () => { if (!state.mixed) return; download(encodeWav(state.mixed, SAMPLE_RATE), fileBase() + '.wav'); });$mp3Btn.addEventListener('click', async () => {
     if (!state.mixed) return;
     $mp3Btn.disabled = true;
     const prev = $status.textContent;
