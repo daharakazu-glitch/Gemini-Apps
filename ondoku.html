@@ -283,13 +283,13 @@
   'use strict';
 
   // =====================================================================
-  // ★ここにステップ2で発行した Google Apps Script (ウェブアプリ) のURLを貼り付けてください
-  const GAS_OCR_URL = 'ここにGASのウェブアプリURL(https://script.google.com/macros/s/.../exec)を貼り付け';
+  // Google Apps Script (ウェブアプリ) の中継URL（設定済み）
+  const GAS_OCR_URL = 'https://script.google.com/macros/s/AKfycbzrmFF0wi56gqrC5mR2coeXDUkHGMhGpblKNFPmrpBS9doOruLlTNCCTU9oPa1YHtOy/exec';
   // =====================================================================
 
   const KOKORO_URL = 'https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js';
   const TESSERACT_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
-  const OCR_MAX_SIDE = 1800;   // GASへ高速に送信できて文字も潰れない最適サイズ
+  const OCR_MAX_SIDE = 1800;
   const LAME_URL = 'https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/dist/lamejs.js';
   const MODEL_ID = 'onnx-community/Kokoro-82M-v1.0-ONNX';
   const SAMPLE_RATE = 24000;
@@ -547,10 +547,10 @@
     return c;
   }
 
-  // ===== GAS経由でGemini Vision APIを呼び出す（CORSプリフライト回避のため text/plain でPOST） =====
+  // ===== GAS経由でGemini Vision APIを呼び出す =====
   async function recognizeViaGasProxy(canvas, fixSpelling) {
     if (!GAS_OCR_URL || !GAS_OCR_URL.startsWith('https://script.google.com/')) {
-      throw new Error('GAS_OCR_URL が未設定です。コード内の GAS_OCR_URL にウェブアプリのURLを設定してください。');
+      throw new Error('GAS_OCR_URL が正しく設定されていません。');
     }
     setOcrProgress(0.3);
     setOcrStatus('AIで手書きの英文を読み取っています…（約3〜6秒）');
