@@ -9,3 +9,7 @@
 - [第12回 LEAP小テスト 音声復習（Part 2 Week 9-10 / 756-842）](leap12.html) — 同上
 - [第13回 LEAP小テスト 音声復習（Part 2 Week 11-12 / 843-923）](leap13.html) — 同上
 - [第14回 LEAP小テスト 音声復習（Part 2 Week 13-14 / 924-1000）](leap14.html) — 同上
+
+## 補足
+
+- `gas/ondoku-ocr.gs` — 英語ネイティブ音声メーカーの「手書き・プリント高精度（AI）」読み取りで使う Google Apps Script のコード。Apps Script に貼り付けて「新バージョン」でデプロイし直すと反映されます。
