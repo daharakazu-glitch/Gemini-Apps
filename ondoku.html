@@ -290,6 +290,8 @@
   const KOKORO_URL = 'https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js';
   const TESSERACT_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
   const OCR_MAX_SIDE = 1800;
+  const OCR_AI_MAX_SIDE = 1600;       // AIに送る写真の最大サイズ（送信量を減らして速くする）
+  const OCR_AI_TIMEOUT_MS = 90000;    // これ以上かかったらあきらめて知らせる
   const LAME_URL = 'https://cdn.jsdelivr.net/npm/@breezystack/lamejs@1.2.7/dist/lamejs.js';
   const MODEL_ID = 'onnx-community/Kokoro-82M-v1.0-ONNX';
   const SAMPLE_RATE = 24000;
@@ -464,7 +466,10 @@
     $ocrImg.removeAttribute('src');
     ocr.sel = null;
   }
-  $('ocrCancel').addEventListener('click', () => { if (!ocr.busy) closeOcr(); });
+  $('ocrCancel').addEventListener('click', () => {
+    if (ocr.busy) { ocr.abort && ocr.abort('cancel'); return; }
+    closeOcr();
+  });
 
   // 写真を90度回転する
   $('rotBtn').addEventListener('click', () => {
@@ -519,12 +524,12 @@
   $crop.addEventListener('pointercancel', endDrag);
   window.addEventListener('resize', drawSel);
 
-  function getCroppedCanvas(grayscale = false) {
+  function getCroppedCanvas(grayscale = false, maxSide = OCR_MAX_SIDE) {
     const img = $ocrImg;
     const s = ocr.sel || { x: 0, y: 0, w: 1, h: 1 };
     const sx = Math.round(s.x * img.naturalWidth), sy = Math.round(s.y * img.naturalHeight);
     const sw = Math.max(1, Math.round(s.w * img.naturalWidth)), sh = Math.max(1, Math.round(s.h * img.naturalHeight));
-    const scale = Math.min(OCR_MAX_SIDE / Math.max(sw, sh), Math.max(1, 1500 / Math.max(sw, sh)), 2.0);
+    const scale = Math.min(maxSide / Math.max(sw, sh), Math.max(1, 1500 / Math.max(sw, sh)), 2.0);
     const cw = Math.max(1, Math.round(sw * scale)), ch = Math.max(1, Math.round(sh * scale));
 
     const c = document.createElement('canvas');
@@ -548,34 +553,55 @@
   }
 
   // ===== GAS経由でGemini Vision APIを呼び出す =====
-  async function recognizeViaGasProxy(canvas, fixSpelling) {
+  async function recognizeViaGasProxy(canvas, fixSpelling, signal) {
     if (!GAS_OCR_URL || !GAS_OCR_URL.startsWith('https://script.google.com/')) {
       throw new Error('GAS_OCR_URL が正しく設定されていません。');
     }
-    setOcrProgress(0.3);
-    setOcrStatus('AIで手書きの英文を読み取っています…（約3〜6秒）');
-    const base64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+    setOcrProgress(0.1);
+    const base64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+    const sizeKB = Math.round(base64.length * 3 / 4 / 1024);
 
-    const res = await fetch(GAS_OCR_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        image: base64,
-        fixSpelling: fixSpelling
-      })
-    });
+    // 経過時間を表示する（止まって見えないように）
+    const t0 = Date.now();
+    const tick = () => {
+      const sec = Math.round((Date.now() - t0) / 1000);
+      setOcrProgress(Math.min(0.9, 0.1 + sec / 40));
+      setOcrStatus(`AIで英文を読み取っています… ${sec} 秒（ふつうは10〜30秒）` + (sec >= 40 ? '　混雑しているようです。もう少し待つか「やめる」を押してください。' : ''));
+    };
+    tick();
+    const timer = setInterval(tick, 1000);
+    const timeout = setTimeout(() => ocr.abort && ocr.abort('timeout'), OCR_AI_TIMEOUT_MS);
 
-    if (!res.ok) {
-      throw new Error(`通信エラー (HTTP ${res.status})`);
+    try {
+      let res;
+      try {
+        res = await fetch(GAS_OCR_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ image: base64, fixSpelling: fixSpelling }),
+          signal,
+        });
+      } catch (err) {
+        if (signal && signal.aborted) throw err;
+        throw new Error(`サーバーにつながりませんでした（写真 ${sizeKB}KB）。インターネット接続を確認してください。`);
+      }
+      if (!res.ok) throw new Error(`通信エラー (HTTP ${res.status})`);
+      const body = await res.text();
+      let data;
+      try { data = JSON.parse(body); }
+      catch (e) {
+        // GAS が時間切れ（6分）やエラーになると、JSON ではなく HTML のエラーページが返ってくる
+        throw new Error('サーバー（GAS）の処理が時間切れか、エラーになりました。少し待ってからもう一度お試しください。');
+      }
+      if (data.error) throw new Error(data.error);
+      setOcrProgress(1.0);
+      return (data.text || '').trim();
+    } finally {
+      clearInterval(timer);
+      clearTimeout(timeout);
     }
-    setOcrProgress(0.9);
-    const data = await res.json();
-    if (data.error) {
-      throw new Error(data.error);
-    }
-    setOcrProgress(1.0);
-    return (data.text || '').trim();
   }
+
 
   // ===== 活字用 Tesseract.js =====
   function loadScript(src) {
@@ -631,16 +657,30 @@
     const mode = ocrType();
 
     ocr.busy = true;
-    $ocrRun.disabled = true; $('ocrCancel').disabled = true; $('rotBtn').disabled = true;
+    $ocrRun.disabled = true; $('rotBtn').disabled = true;
+    $('ocrCancel').textContent = '中止';
     setOcrProgress(0);
+
+    // 「中止」ボタンや時間切れで処理を止められるようにする
+    const ctrl = new AbortController();
+    let abortReason = '';
+    ocr.abort = (reason) => {
+      if (ctrl.signal.aborted) return;
+      abortReason = reason;
+      ctrl.abort();
+      // 活字モード（Tesseract）は途中で止められないので、作業役ごと終了する
+      if (mode !== 'gemini' && ocr.worker) { ocr.worker.terminate(); ocr.worker = null; ocr.loading = null; }
+    };
+    const aborted = new Promise((_, reject) => ctrl.signal.addEventListener('abort', () => reject(new Error('__abort__'))));
+    aborted.catch(() => {});
 
     try {
       let finalText = '';
       let lowConfidence = false;
 
       if (mode === 'gemini') {
-        const canvas = getCroppedCanvas(false);
-        const raw = await recognizeViaGasProxy(canvas, $ocrFixSpell.checked);
+        const canvas = getCroppedCanvas(false, OCR_AI_MAX_SIDE);
+        const raw = await Promise.race([recognizeViaGasProxy(canvas, $ocrFixSpell.checked, ctrl.signal), aborted]);
         finalText = cleanOcrText(raw);
       } else {
         const canvas = getCroppedCanvas(true);
@@ -654,9 +694,9 @@
           }
         };
         setOcrStatus('文字認識の準備をしています…');
-        const w = await ensureTesseract();
+        const w = await Promise.race([ensureTesseract(), aborted]);
         setOcrStatus('英文を読み取っています…');
-        const { data } = await w.recognize(canvas);
+        const { data } = await Promise.race([w.recognize(canvas), aborted]);
         finalText = cleanOcrText(data.text || '');
         lowConfidence = data.confidence < 70;
       }
@@ -677,13 +717,21 @@
       );
       $text.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (err) {
-      console.error(err);
       setOcrProgress(0);
-      setOcrStatus('読み取りエラー：' + String(err && err.message || err), 'err');
+      if (ctrl.signal.aborted && abortReason === 'timeout') {
+        setOcrStatus(`${OCR_AI_TIMEOUT_MS / 1000} 秒待っても読み取りが終わらなかったので、中止しました。AIが混雑している可能性があります。少し時間をおいてもう一度試すか、英文の部分だけを指で囲んでから読み取ってください。`, 'err');
+      } else if (ctrl.signal.aborted) {
+        setOcrStatus('読み取りを中止しました。');
+      } else {
+        console.error(err);
+        setOcrStatus('読み取りエラー：' + String(err && err.message || err), 'err');
+      }
     } finally {
       ocr.busy = false;
+      ocr.abort = null;
       ocrLogger = null;
-      $ocrRun.disabled = false; $('ocrCancel').disabled = false; $('rotBtn').disabled = false;
+      $ocrRun.disabled = false; $('rotBtn').disabled = false;
+      $('ocrCancel').textContent = 'やめる';
     }
   });
 
